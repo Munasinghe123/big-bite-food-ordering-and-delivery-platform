@@ -135,7 +135,24 @@ const updatePaymentStatus = async (req, res) => {
     }
 };
 
+const getRejectedDelivery = async(req,res)=>{
+
+    try{
+
+        const rejected = await userModel.find({status:"rejected"});
+        if(!rejected){
+            res.status(400).json({message:"no rejected delivery persons",rejected});
+        }
+
+        res.status(200).json({message:"rejected delevery persons",rejected});
+    }catch(err){
+        console.error("Error updating payment status:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+
+}
 
 
 
-module.exports = {registerDeliveryPerson,getPendingDeliveryPerson,approveDeliveryPerson,updatePaymentStatus}
+
+module.exports = {registerDeliveryPerson,getPendingDeliveryPerson,approveDeliveryPerson,updatePaymentStatus,getRejectedDelivery}
