@@ -48,41 +48,6 @@ function App() {
 
   const { user } = useContext(AuthContext);
 
-  return(
-    <>
-    <Header/>
-    <Routes>
-    {
-      user ? (
-        <>
-        {
-            user.role ==="SystemAdmin" && (
-              <>
-                <Route path="/ResturantApproval" element={<ResturantApproval/>}/>
-                <Route path="/DeliveryPersonApproval" element={<DeliveryPersonApproval/>}/>
-                <Route path="/AdminDashBoard" element={<AdminDashBoard/>}/>
-                <Route path='/register' element={<RegisterDirection />} />
-                <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
-                <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
-                <Route path="/RejectedResturants" element={<RejectedResturants/>}/>
-                
-              </>
-                
-            )
-        }
-
-        {
-          user.role ==="Customer" &&(
-            <>
-            <Route path="/Customer" element={<Customer/>}/>
-            <Route path="/payment-success" element={<PaymentSuccessC />} />
-            <Route path="/payment-cancel" element={<PaymentCancelC />} />
-            <Route path="/order-details/:id" element={<OrderDetails />} />
-            <Route path="/order-history/:username" element={<OrderHistory />} />
-            </>
-          ) 
-        }
-
   return (
     <>
       <Header />
@@ -93,13 +58,13 @@ function App() {
               {
                 user.role === "SystemAdmin" && (
                   <>
-                    <Route path="/ResturantApproval" element={<ResturantApproval />} />
-                    <Route path="/DeliveryPersonApproval" element={<DeliveryPersonApproval />} />
-                    <Route path="/AdminDashBoard" element={<AdminDashBoard />} />
+                    <Route path="/ResturantApproval" element={<ResturantApproval/>}/>
+                    <Route path="/DeliveryPersonApproval" element={<DeliveryPersonApproval/>}/>
+                    <Route path="/AdminDashBoard" element={<AdminDashBoard/>}/>
                     <Route path='/register' element={<RegisterDirection />} />
                     <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
                     <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
-                    <Route path="/RejectedResturants" element={<RejectedResturants />} />
+                    <Route path="/RejectedResturants" element={<RejectedResturants/>}/>
 
                   </>
 
@@ -108,7 +73,13 @@ function App() {
 
               {
                 user.role === "Customer" && (
-                  <Route path="/Customer" element={<Customer />} />
+                  <>
+                  <Route path="/Customer" element={<Customer/>}/>
+                  <Route path="/payment-success" element={<PaymentSuccessC />} />
+                  <Route path="/payment-cancel" element={<PaymentCancelC />} />
+                  <Route path="/order-details/:id" element={<OrderDetails />} />
+                  <Route path="/order-history/:username" element={<OrderHistory />} />
+                  </>
                 )
               }
 
