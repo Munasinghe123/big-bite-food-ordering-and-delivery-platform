@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #fcfcfc;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: #a9a9a9;
+}
+
+.app-content {
+    display: flex;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cursor {
+    cursor: pointer;
+}
+
+.sidebar {
+    min-height: 100vh;
+    border: 1.5px solid #a9a9a9;
+    border-top: 0;
+    font-size: 10px;
+    background-color: lightgray;
+    height: 100vh;
+}
+
+.options {
+    padding-top: 50px;
+    padding-left: 15%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid darkgoldenrod;
+    border-right: 0;
+    padding: 8px 10px;
+    border-radius: 3px 0px 0px 3px;
+    cursor: pointer;
+}
+
+.dashboard {
+    width: 30px;
+    height: 30px;
+}
+
+.add-menu {
+    width: 25px;
+    height: 25px;
+}
+
+.menu-lists {
+    width: 25px;
+    height: 25px;
+}
+
+.order-icon {
+    width: 25px;
+    height: 25px;
+}
+
+.profile-icon {
+    width: 25px;
+    height: 25px;
+}
+
+.sidebar-option.active {
+    background-color: #fff0ed;
+    border-color: tomato;
+}
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+    .sidebar-option p {
+        display: none;
+    }
+
+    .options {
+        padding-left: 10%;
+        gap: 15px;
+    }
+}
+
+/* Small desktop (between 769px and 992px) */
+@media (min-width: 769px) and (max-width: 992px) {
+    .sidebar-option p {
+        font-size: 0.9rem;
+    }
+
+    .options {
+        padding-left: 12%;
+        gap: 18px;
+    }
+}
+
+/* Large desktop (1200px and above) */
+@media (min-width: 1200px) {
+    .sidebar-option p {
+        font-size: 1.1rem;
+    }
+
+    .options {
+        padding-left: 20%;
+    }
+
+    .sidebar-option {
+        padding: 10px 12px;
+    }
+}

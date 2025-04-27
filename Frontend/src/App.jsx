@@ -2,7 +2,7 @@ import React from "react";
 
 import { AuthContext } from "./Context/AuthContext";
 import { useContext } from "react";
-import { Routes,Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 //system admin
 import ResturantApproval from './Components/SystemAdmin/Approval/ResturantApproval';
@@ -14,7 +14,12 @@ import RejectedResturants from "./Components/SystemAdmin/Rejected/RejectedRestur
 import Customer from "./Components/Customer/Customer";
 
 //resturnat
-import Resturant from "./Components/Resturant/Resturant";
+import Dashboard from "./Components/Resturant/Pages/Dashboard/Dashboard";
+import Menulists from "./Components/Resturant/Pages/Menulists/Menulists";
+import AddMenu from "./Components/Resturant/Pages/AddMenu/Addmenu";
+import UpdateMenu from "./Components/Resturant/Pages/UpdateMenu/UpdateMenu";
+import Orders from "./Components/Resturant/Pages/Orders/Orders";
+import UpdateRestaurant from "./Components/Resturant/Pages/UpdateRestaurant/UpdateRestaurant";
 
 //delivery Person
 import DeliveryPerson from "./Components/DeliveryPerson/DeliveryPerson";
@@ -35,69 +40,76 @@ import CancelPage from './Common/Register/DileveryPersonRegistration/PaymentCanc
 import ResturantPaymentCancel from "./Common/Register/ResturantRegistration/ResturantPaymentCancel";
 import ResturantPaymentSuccess from "./Common/Register/ResturantRegistration/ResturantPaymentSuccess";
 
-function App(){
+function App() {
 
-  
-const {user} = useContext(AuthContext);
 
-  return(
+  const { user } = useContext(AuthContext);
+
+  return (
     <>
-    <Header/>
-    <Routes>
-    {
-      user ? (
-        <>
+      <Header />
+      <Routes>
         {
-            user.role ==="SystemAdmin" && (
-              <>
-                <Route path="/ResturantApproval" element={<ResturantApproval/>}/>
-                <Route path="/DeliveryPersonApproval" element={<DeliveryPersonApproval/>}/>
-                <Route path="/AdminDashBoard" element={<AdminDashBoard/>}/>
-                <Route path='/register' element={<RegisterDirection />} />
-                <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
-                <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
-                <Route path="/RejectedResturants" element={<RejectedResturants/>}/>
-                
-              </>
-                
-            )
-        }
+          user ? (
+            <>
+              {
+                user.role === "SystemAdmin" && (
+                  <>
+                    <Route path="/ResturantApproval" element={<ResturantApproval />} />
+                    <Route path="/DeliveryPersonApproval" element={<DeliveryPersonApproval />} />
+                    <Route path="/AdminDashBoard" element={<AdminDashBoard />} />
+                    <Route path='/register' element={<RegisterDirection />} />
+                    <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
+                    <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
+                    <Route path="/RejectedResturants" element={<RejectedResturants />} />
 
-        {
-          user.role ==="Customer" &&(
-            <Route path="/Customer" element={<Customer/>}/>
-          ) 
-        }
+                  </>
 
-        {
-          user.role==="ResturantAdmin" &&(
-            <Route path='/ResturantAdmin' element={<Resturant/>}/>
+                )
+              }
+
+              {
+                user.role === "Customer" && (
+                  <Route path="/Customer" element={<Customer />} />
+                )
+              }
+
+              {
+                user.role === "ResturantAdmin" && (
+                  <>
+                    <Route path="/ResturantAdmin" element={<Dashboard />} />
+                    <Route path="/addmenu" element={<AddMenu />} />
+                    <Route path="/update/:id" element={<UpdateMenu />} />
+                    <Route path="/menulists" element={<Menulists />} />
+                    <Route path="/orders" element={<Orders />} />
+                    <Route path="/updaterestaurant/:id" element={<UpdateRestaurant />} />
+                  </>
+                )
+              }
+
+              {
+                user.role === "DeliveryPerson" && (
+                  <Route path="/DeliveryPerson" element={<DeliveryPerson />} />
+                )
+              }
+            </>
+          ) : (
+            <>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path='/register' element={<RegisterDirection />} />
+              <Route path='/CustomerRegister' element={<CustomerRegister />} />
+              <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
+              <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
+              <Route path='/payment-success' element={<PaymentSuccess />} />
+              <Route path="/payment-cancel" element={<CancelPage />} />
+              <Route path='/resturant-payment-success' element={<ResturantPaymentSuccess />} />
+              <Route path='/resturant-payment-cancel' element={<ResturantPaymentCancel />} />
+            </>
           )
-        }
 
-        {
-          user.role==="DeliveryPerson" &&(
-            <Route path="/DeliveryPerson" element={<DeliveryPerson/>}/>
-          )
         }
-        </>
-      ):(
-      <>
-        <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path='/register' element={<RegisterDirection />} />
-            <Route path='/CustomerRegister' element={<CustomerRegister />} />
-            <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
-            <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
-            <Route path='/payment-success' element={<PaymentSuccess/>}/>
-            <Route path="/payment-cancel" element={<CancelPage/>}/>
-            <Route path='/resturant-payment-success' element={<ResturantPaymentSuccess/>}/>
-            <Route path='/resturant-payment-cancel' element={<ResturantPaymentCancel/>}/>
-      </>
-      )
-      
-    }
-     </Routes>
+      </Routes>
     </>
   )
 
