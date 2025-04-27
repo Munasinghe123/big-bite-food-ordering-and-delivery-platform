@@ -1,0 +1,61 @@
+
+
+services:
+  frontend:
+    build: ./Frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./Frontend:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    restart: unless-stopped
+    networks:
+      - mern
+
+  auth-service:
+    build:
+      context: ./AuthService
+      dockerfile: Dockerfile
+    ports:
+      - "7001:7001"
+    volumes:
+      - ./AuthService:/app
+    depends_on:
+      - admin-notification-service
+      - mongo
+    restart: unless-stopped
+    networks:
+      - mern
+
+  admin-notification-service:
+    build:
+      context: ./AdminNotificationService
+      dockerfile: Dockerfile
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./AdminNotificationService:/app
+    restart: unless-stopped
+    networks:
+      - mern
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    logging:
+      driver: "none"
+    restart: unless-stopped
+    networks:
+      - mern
+
+networks:
+  mern:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
