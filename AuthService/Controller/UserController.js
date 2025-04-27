@@ -85,4 +85,19 @@ const register = async (req, res) => {
     }
 };
 
-module.exports= {login,logout,checkToken,register}
+const getAllUsers = async(req,res)=>{
+    try{
+
+        const allUsers = await userModel.find();
+        if(!allUsers){
+            res.status(404).json({message:"No users found"});
+        }
+
+        res.status(200).json({message:"All users", allUsers});
+    }catch(err){
+        console.error("Registration error:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+module.exports= {login,logout,checkToken,register,getAllUsers}

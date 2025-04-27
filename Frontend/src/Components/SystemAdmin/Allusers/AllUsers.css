@@ -1,0 +1,38 @@
+/* Tables */
+
+.all-users-container{
+    margin-top: 150px;
+}
+.user-section {
+  margin-bottom: 2.5rem;
+}
+
+.users-table {
+  margin-bottom: 2rem;
+}
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+  }
+  
+  .users-table th,
+  .users-table td {
+    border: 1px solid #ddd;
+    padding: 0.75rem 1rem;
+    text-align: left;
+  }
+  
+  .users-table th {
+    background-color: #ff7f00;
+    color: white;
+  }
+  
+  .users-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .users-table tr:hover td {
+    background-color: #fff8f0;
+  }
+  
