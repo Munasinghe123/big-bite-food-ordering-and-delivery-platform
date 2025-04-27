@@ -1,7 +1,6 @@
-const Restaurant = require('../Models/restaurantModel');
+const Restaurant = require('../../AuthService/Models/ResturantModel');
 const Menu = require('../Models/menuModel');
-//const Order = require('../../OrderService/Models/orderModel');
-const Order = require('../Models/orderModel');
+const Order = require('../../OrderService/models/Order');
 
 const getDashboardStats = async (req, res) => {
   try {

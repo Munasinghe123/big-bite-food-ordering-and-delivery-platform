@@ -170,7 +170,7 @@ const updateResturantPaymentStatus = async (req, res) => {
 
 const getAllRestaurants = async (req, res) => {
     try {
-      const restaurants = await Restaurant.find({});
+      const restaurants = await resturantModel.find({});
       res.status(200).json({ success: true, data: restaurants });
     } catch (error) {
       res.status(500).json({ success: false, message: 'Error fetching restaurants', error: error.message });
@@ -179,7 +179,7 @@ const getAllRestaurants = async (req, res) => {
   
   const getRestaurantById = async (req, res) => {
     try {
-      const restaurant = await Restaurant.findById(req.params.id);
+      const restaurant = await resturantModel.findById(req.params.id);
       if (!restaurant) {
         return res.status(404).json({ message: 'Restaurant not found' });
       }
