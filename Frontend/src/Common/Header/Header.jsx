@@ -44,6 +44,7 @@ function Header() {
             </Link>
 
             <div className="menu-wrapper">
+
             <ul className="menu-items">
           {role === 'Customer' ? (
             <>
@@ -64,15 +65,8 @@ function Header() {
           )}
         </ul>
 
-                <ul className="menu-icons">
-                    <FaShoppingCart size={30} color="black" />
-                    <div className='search-container'>
-                        <FaSearch size={30} color='black' />
-                        <input type='text' className='search-bar' placeHolder='Search...' />
-                    </div>
-
-                </ul>
             </div>
+               
 
             {user ? (
                 <div className="menu-container">
