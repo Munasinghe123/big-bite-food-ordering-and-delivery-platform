@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './DileveryPersonRegistration.css';
 
 function DileveryPersonRegistration() {
   const [name, setName] = useState('');
@@ -96,7 +97,7 @@ function DileveryPersonRegistration() {
           <label>Password</label>
           <input type='password' value={password} onChange={(e) => setPassword(e.target.value)} required /> <br /><br />
 
-          <button type='submit'>Submit and pay</button>
+          <button className='submitNPayButton' type='submit'>Submit and pay</button>
         </form>
       </div>
     </div>

@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { AuthContext } from '../../Context/AuthContext';
 import { jwtDecode } from 'jwt-decode';
 
+import './Login.css'
+
 function Login() {
 
     const { login } = useContext(AuthContext);
@@ -58,7 +60,7 @@ function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)} /> <br /><br />
 
-                    <button type='submit'>Login</button>
+                    <button className='login-form-btn' type='submit'>Login</button>
                 </form>
             </div>
         </div>

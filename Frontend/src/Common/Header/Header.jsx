@@ -29,20 +29,11 @@ function Header() {
             <div className="menu-wrapper">
                 <ul className="menu-items">
                     <li><Link to="/">Home</Link></li>
-                    <li><Link to="/menu">Menu</Link></li>
-                    <li><Link to="/contact">Contact Us</Link></li>
                     <li><Link to="/register">Become a partner</Link></li>
                 </ul>
 
-                <ul className="menu-icons">
-                    <FaShoppingCart size={30} color="black" />
-                    <div className='search-container'>
-                        <FaSearch size={30} color='black' />
-                        <input type='text' className='search-bar' placeHolder='Search...' />
-                    </div>
-
-                </ul>
             </div>
+               
 
             {user ? (
                 <div className="menu-container">
