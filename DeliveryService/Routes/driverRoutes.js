@@ -7,7 +7,7 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../utils/notifications');
 
-// Custom verifyToken middleware to validate JWT from friend's auth serviceee
+// Custom verifyToken middleware to validate JWT from auth service
 const verifyToken = (req, res, next) => {
   let token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
@@ -28,12 +28,10 @@ const verifyToken = (req, res, next) => {
 // Helper function to fetch a single user's data from auth service
 async function fetchUserFromAuth(userId, token) {
   try {
-    // Fetch delivery persons from auth service
     const response = await axios.get('http://localhost:7001/api/delivery/pending', {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    // Find the user in the response
     const users = response.data.pendingDeliveryPerson || [];
     const authUser = users.find((user) => user._id === userId);
 
@@ -66,12 +64,10 @@ router.put('/update-location', verifyToken, async (req, res) => {
   }
 
   try {
-    // Verify user role from JWT
     if (req.user.role !== 'DeliveryPerson') {
       return res.status(403).json({ message: 'Only DeliveryPerson users can update driver location.' });
     }
 
-    // Fetch user data to update Driver document
     let user;
     try {
       user = await fetchUserFromAuth(userId, token);
@@ -80,7 +76,6 @@ router.put('/update-location', verifyToken, async (req, res) => {
       user = { id: userId, name: req.user.name, email: req.user.email, phone: '', role: req.user.role };
     }
 
-    // Update or create Driver document
     let driver = await Driver.findOne({ userId });
     if (!driver) {
       driver = new Driver({
@@ -118,9 +113,11 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
       const response = await axios.get('http://localhost:5000/orders/view-all-orders');
       pendingOrders = response.data.filter(
         (order) =>
-          order.orderStatus === 'readyForPickup' &&
+          order.orderStatus === 'pending' &&
+          order.paymentStatus === 'Paid' &&
           (!order.deliveryPersonId || order.deliveryPersonId === '')
       );
+      console.log(`Found ${pendingOrders.length} eligible orders for assignment:`, pendingOrders.map(o => o.orderId));
     } catch (apiErr) {
       console.error('Error fetching orders from order-service:', apiErr.message);
       return res.status(500).json({
@@ -133,7 +130,7 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
     if (!pendingOrders.length) {
       return res.status(404).json({
         success: false,
-        message: 'No valid pending orders available for delivery',
+        message: 'No valid pending orders with paid status available for delivery',
       });
     }
 
@@ -143,7 +140,7 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
       role: 'DeliveryPerson',
       name: { $exists: true, $ne: '' },
       email: { $exists: true, $ne: '' },
-      phone: { $exists: true }, // Allow empty phone but ensure field exists
+      phone: { $exists: true },
       'currentLocation.latitude': { $exists: true, $ne: null },
       'currentLocation.longitude': { $exists: true, $ne: null },
     });
@@ -179,7 +176,6 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
         let driverUser = null;
 
         for (const driver of drivers) {
-          // Verify driver data integrity
           if (!driver.role || driver.role !== 'DeliveryPerson') {
             console.warn(`Skipping driver ${driver.userId}: Invalid role (${driver.role})`);
             continue;
@@ -435,7 +431,6 @@ router.post('/sync-drivers', verifyToken, async (req, res) => {
   try {
     const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
-    // Clean invalid Driver documents
     const drivers = await Driver.find();
     for (const driver of drivers) {
       try {
@@ -446,7 +441,6 @@ router.post('/sync-drivers', verifyToken, async (req, res) => {
           );
           await Driver.deleteOne({ _id: driver._id });
         } else {
-          // Update driver with latest user data
           driver.name = user.name;
           driver.email = user.email;
           driver.phone = user.phone;
@@ -459,7 +453,6 @@ router.post('/sync-drivers', verifyToken, async (req, res) => {
       }
     }
 
-    // Fetch DeliveryPerson users from auth service
     let deliveryPersons;
     try {
       const response = await axios.get('http://localhost:7001/api/delivery/pending', {
@@ -503,7 +496,6 @@ router.post('/sync-drivers', verifyToken, async (req, res) => {
         console.log(`Added new driver for user ${user._id}`);
         syncedCount++;
       } else {
-        // Update existing driver
         existingDriver.name = user.name || existingDriver.name;
         existingDriver.email = user.email || existingDriver.email;
         existingDriver.phone = user.phone || existingDriver.phone;
@@ -612,7 +604,6 @@ router.post('/record-delivery', verifyToken, async (req, res) => {
       });
     }
 
-    // Update driver availability
     await Driver.findOneAndUpdate(
       { userId: deliveryPersonId },
       {
@@ -643,7 +634,7 @@ router.get('/customer-orders', verifyToken, async (req, res) => {
     const userRole = req.user.role;
 
     if (userRole !== 'Customer') {
-      return res.status(403).json({
+      return res.status(400).json({
         success: false,
         message: 'Only customers can view their orders',
       });

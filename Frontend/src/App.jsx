@@ -12,6 +12,10 @@ import RejectedResturants from "./Components/SystemAdmin/Rejected/RejectedRestur
 
 //customer
 import Customer from "./Components/Customer/Customer";
+import PaymentSuccessC from "./Components/Customer/PaymentSuccess";
+import PaymentCancelC from "./Components/Customer/PaymentCancel";
+import OrderDetails from './Components/Customer/OrderDetails';
+import OrderHistory from './Components/Customer/OrderHistory';
 
 //resturnat
 import Dashboard from "./Components/Resturant/Pages/Dashboard/Dashboard";
@@ -42,8 +46,42 @@ import ResturantPaymentSuccess from "./Common/Register/ResturantRegistration/Res
 
 function App() {
 
-
   const { user } = useContext(AuthContext);
+
+  return(
+    <>
+    <Header/>
+    <Routes>
+    {
+      user ? (
+        <>
+        {
+            user.role ==="SystemAdmin" && (
+              <>
+                <Route path="/ResturantApproval" element={<ResturantApproval/>}/>
+                <Route path="/DeliveryPersonApproval" element={<DeliveryPersonApproval/>}/>
+                <Route path="/AdminDashBoard" element={<AdminDashBoard/>}/>
+                <Route path='/register' element={<RegisterDirection />} />
+                <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
+                <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
+                <Route path="/RejectedResturants" element={<RejectedResturants/>}/>
+                
+              </>
+                
+            )
+        }
+
+        {
+          user.role ==="Customer" &&(
+            <>
+            <Route path="/Customer" element={<Customer/>}/>
+            <Route path="/payment-success" element={<PaymentSuccessC />} />
+            <Route path="/payment-cancel" element={<PaymentCancelC />} />
+            <Route path="/order-details/:id" element={<OrderDetails />} />
+            <Route path="/order-history/:username" element={<OrderHistory />} />
+            </>
+          ) 
+        }
 
   return (
     <>
