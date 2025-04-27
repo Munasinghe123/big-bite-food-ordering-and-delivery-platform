@@ -9,6 +9,7 @@ import ResturantApproval from './Components/SystemAdmin/Approval/ResturantApprov
 import DeliveryPersonApproval from "./Components/SystemAdmin/Approval/DeliveryPersonApproval";
 import AdminDashBoard from "./Components/SystemAdmin/AdminDashBoard/AdminDashBoard";
 import RejectedResturants from "./Components/SystemAdmin/Rejected/RejectedResturants";
+import Allusers from "./Components/SystemAdmin/Allusers/AllUsers";
 
 //customer
 import Customer from "./Components/Customer/Customer";
@@ -65,6 +66,7 @@ function App() {
                     <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
                     <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
                     <Route path="/RejectedResturants" element={<RejectedResturants/>}/>
+                    <Route path="/allusers" element={<Allusers/>}/>
 
                   </>
 
