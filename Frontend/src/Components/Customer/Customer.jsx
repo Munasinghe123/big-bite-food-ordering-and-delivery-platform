@@ -65,7 +65,7 @@ function Customer() {
             .catch(err => console.error(err));
             
 
-        axios.get('http://localhost:5004/api/restaurant/list')
+        axios.get('http://localhost:7001/api/resturants/list')
             .then(res => {
                 if (res.data.success) {
                     const openedRestaurants = res.data.data.filter(r => r.status === 'Opened');
@@ -232,7 +232,7 @@ function Customer() {
               {restaurants.map((res) => (
                   <div key={res.restaurantId} className="restaurant-card" onClick={() => handleRestaurantClick(res.restaurantId)}>
                       <img
-                          src={`http://localhost:5004/images/${res.restaurantPhoto}`}
+                          src={`http://localhost:7001/images/${res.restaurantPhoto}`}
                           alt={res.restaurantName}
                           className="restaurant-img"
                       />
