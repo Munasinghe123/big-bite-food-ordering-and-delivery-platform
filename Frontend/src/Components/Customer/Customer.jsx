@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+
+import { AuthContext } from '../../Context/AuthContext';
+
+//importing useContext
+
 
 import './Customer.css';
 
@@ -27,6 +32,9 @@ function LocationSelector({ setLat, setLng }) {
   }
 
 function Customer() {
+
+    const{user} = useContext(AuthContext);
+
     const [customer, setCustomer] = useState('');
     const [restaurants, setRestaurants] = useState([]);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
@@ -43,17 +51,14 @@ function Customer() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+       
 
-        const { name } = jwtDecode(token);
-
-        axios.get(`http://localhost:5002/customer/view/${name}`)
+        axios.get(`http://localhost:5002/customer/view/${user.name}`)
             .then(res => setCustomer(res.data))
             .catch(err => console.error(err));
 
          
-            axios.get(`http://localhost:5000/orders/view-pending/${name}`)
+            axios.get(`http://localhost:5000/orders/view-pending/${user.name}`)
             .then(res => {
               setPendingOrders(res.data);
             })
