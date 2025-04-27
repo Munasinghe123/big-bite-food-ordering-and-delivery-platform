@@ -42,6 +42,8 @@ function Login() {
         } else if (decode.role === 'Customer') {
             navigate('/Customer');
         }
+
+        console.log('login check')
     }
 
     return (
