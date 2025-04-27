@@ -50,7 +50,9 @@ const Sidebar = () => {
         {list.map((item) => (
           <NavLink to={`/updaterestaurant/${item._id}`} className='sidebar-option' key={item._id}>
             <img className='profile-icon' src={assets.profile} alt='Profile' />
-            <p>Profile</p>
+            <div>
+              <p>Profile</p>
+            </div>
           </NavLink>
         ))}
       </div>
