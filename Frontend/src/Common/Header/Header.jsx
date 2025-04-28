@@ -50,7 +50,7 @@ function Header() {
             <>
               <li><Link to="/Customer">Dashboard</Link></li>
               {token && (
-                <li><Link to={`/order-history/${jwtDecode(token).name}`}>Order History</Link></li>
+                <li><Link to={`/order-history/${user.name}`}>Order History</Link></li>
                 )}
               <li><Link to="/profile">User Profile</Link></li>
               <li><Link to="/contact">Contact</Link></li>
