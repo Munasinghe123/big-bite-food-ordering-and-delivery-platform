@@ -26,6 +26,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+
 // Helper function to fetch a single user's data from auth service
 async function fetchUserFromAuth(userId, token) {
   try {
@@ -105,6 +106,159 @@ router.put('/update-location', verifyToken, async (req, res) => {
   }
 });
 
+// New endpoint for payment-success driver assignment (no auth required)
+router.post('/assign-driver-payment-success', async (req, res) => {
+  try {
+    const { orderId, secretKey } = req.body;
+    
+    // Simple security check (replace with more robust solution in production)
+    if (secretKey !== process.env.PAYMENT_SUCCESS_SECRET) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: 'orderId is required in the request body',
+      });
+    }
+
+    console.log(`Processing payment-success driver assignment for order: ${orderId}`);
+
+    // Fetch the specific order from order-service
+    let order;
+    try {
+      const response = await axios.get(`http://localhost:5000/orders/view/${orderId}`);
+      order = response.data;
+      
+      if (!order || order.orderStatus !== 'pending' || order.paymentStatus !== 'Paid' || order.deliveryPersonId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Order not eligible for driver assignment',
+          details: {
+            exists: !!order,
+            status: order?.orderStatus,
+            paymentStatus: order?.paymentStatus,
+            hasDriver: !!order?.deliveryPersonId
+          }
+        });
+      }
+    } catch (apiErr) {
+      console.error('Error fetching order from order-service:', apiErr.message);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to fetch order from order-service',
+        details: apiErr.message,
+      });
+    }
+
+    // Find available drivers with valid locations
+    const drivers = await Driver.find({
+      isAvailable: true,
+      role: 'DeliveryPerson',
+      'currentLocation.latitude': { $exists: true, $ne: null },
+      'currentLocation.longitude': { $exists: true, $ne: null },
+    });
+
+    if (!drivers.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No available drivers found',
+      });
+    }
+
+    // Calculate distances and find nearest driver
+    const restaurantLocation = {
+      latitude: parseFloat(order.restaurantLocationLatitude),
+      longitude: parseFloat(order.restaurantLocationLongitude)
+    };
+
+    let nearestDriver = null;
+    let minDistance = Infinity;
+
+    for (const driver of drivers) {
+      const driverLocation = {
+        latitude: driver.currentLocation.latitude,
+        longitude: driver.currentLocation.longitude
+      };
+
+      const distance = calculateDistance(driverLocation, restaurantLocation);
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestDriver = driver;
+      }
+    }
+
+    if (!nearestDriver) {
+      return res.status(404).json({
+        success: false,
+        message: 'No suitable driver found',
+      });
+    }
+
+    // Update order with driver assignment
+    try {
+      await axios.put(`http://localhost:5000/orders/update-delivery-person/${orderId}`, {
+        deliveryPersonId: nearestDriver.userId,
+        deliveryPersonName: nearestDriver.name,
+        deliveryPersonPhone: nearestDriver.phone,
+      });
+
+      await axios.put(`http://localhost:5000/orders/update-order-status/${orderId}`, {
+        orderStatus: 'driverAssigned',
+      });
+
+      // Update driver status
+      await Driver.findByIdAndUpdate(nearestDriver._id, {
+        $set: { isAvailable: false },
+        $inc: { currentOrders: 1 },
+      });
+
+      // Send notification to driver
+      if (nearestDriver.email) {
+        const emailSubject = `New Order Assigned - Order ID: ${orderId}`;
+        const emailBody = `Hello ${nearestDriver.name},\n\nYou have been assigned to deliver order ${orderId}.\n\nRestaurant: ${order.restaurantName}\n\nPlease proceed to pick up the order.\n\nBest regards,\nYour Delivery App Team`;
+        
+        try {
+          await sendEmail(nearestDriver.email, emailSubject, emailBody);
+        } catch (emailErr) {
+          console.error('Failed to send email notification:', emailErr.message);
+        }
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Driver assigned successfully',
+        data: {
+          orderId,
+          driverId: nearestDriver.userId,
+          driverName: nearestDriver.name,
+          distance: `${minDistance.toFixed(2)} km`
+        }
+      });
+
+    } catch (updateErr) {
+      console.error('Failed to update order with driver assignment:', updateErr.message);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to complete driver assignment',
+        details: updateErr.message,
+      });
+    }
+
+  } catch (err) {
+    console.error('Error in payment-success driver assignment:', err);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      details: err.message,
+    });
+  }
+});
+
+// Automatically assign an order to the nearest available driver
+// Automatically assign an order to the nearest available driver
 // Automatically assign an order to the nearest available driver
 router.post('/assign-driver-auto', verifyToken, async (req, res) => {
   try {
@@ -294,7 +448,6 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
     });
   }
 });
-
 // Fetch assigned orders for the authenticated user
 router.get('/showtheorder', verifyToken, async (req, res) => {
   try {

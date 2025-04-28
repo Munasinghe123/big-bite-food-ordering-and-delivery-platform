@@ -110,7 +110,7 @@ function App() {
                 user.role === "DeliveryPerson" && (
                   <>
                   <Route path="/DeliveryPerson" element={<DeliveryPerson />} />
-                  <Route path="/OrderDetails" element = {<DOrderDetails/>}/>
+                  <Route path="/DOrderDetails" element = {<DOrderDetails/>}/>
                   <Route path="/Deliveryconfirm" element = {<Deliveryconfirm/>}/>
                   <Route path="/DeliveryDashboard" element = {<DeliveryDashboard/>}/>
                   </>
