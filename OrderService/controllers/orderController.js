@@ -325,7 +325,7 @@ const updateOrderPaymentStatusAfterSuccess = async (req, res) => {
             return res.status(400).json({ message: "Order status is required" });
         }
 
-        const validStatuses = [ "Pending", "Confirmed", "Preparing", "ReadyToDeliver",  "Cancelled" ];
+        const validStatuses = ["pending", "confirmed", "preparing", "readyForPickup", "driverAssigned", "driverAccepted", "outForDelivery", "delivered", "cancelled"];
 
         if (!validStatuses.includes(orderStatus)) {
             return res.status(400).json({ message: "Invalid order status" });
