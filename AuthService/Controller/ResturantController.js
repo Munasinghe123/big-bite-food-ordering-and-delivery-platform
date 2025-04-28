@@ -92,7 +92,7 @@ const registerResturant = async (req, res) => {
 
 const approveResturant = async (req, res) => {
     try {
-        const { restaurantId, status } = req.body;
+        const { restaurantId, status } = req.body; 
 
         if (!["approved", "rejected"].includes(status)) {
             return res.status(400).json({ message: "Invalid status value" });
