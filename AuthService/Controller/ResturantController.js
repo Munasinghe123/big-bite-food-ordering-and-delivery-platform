@@ -92,7 +92,7 @@ const registerResturant = async (req, res) => {
 
 const approveResturant = async (req, res) => {
     try {
-        const { restaurantId, status } = req.body;
+        const { restaurantId, status } = req.body; 
 
         if (!["approved", "rejected"].includes(status)) {
             return res.status(400).json({ message: "Invalid status value" });
@@ -100,8 +100,8 @@ const approveResturant = async (req, res) => {
 
         console.log("resturant route hit");
 
-        const updatedResturant = await resturantModel.findByIdAndUpdate(
-            restaurantId,
+        const updatedResturant = await resturantModel.findOneAndUpdate(
+            {restaurantId},
             { status },
             { new: true }
         ).populate('admin');
@@ -121,7 +121,7 @@ const approveResturant = async (req, res) => {
             email: {
                 to: updatedResturant.admin.email,
                 subject: `Your registration has been ${status}`,
-                text: `Dear ${updatedResturant.admin.name},\n\nYour ${updatedResturant.resturantName} registration has been ${status} by the system admin.\n\nThank you!`
+                text: `Dear ${updatedResturant.admin.name},\n\nYour ${updatedResturant.restaurantName} registration has been ${status} by the system admin.\n\nThank you!`
             },
             sms: {
                 to: adminPhone,

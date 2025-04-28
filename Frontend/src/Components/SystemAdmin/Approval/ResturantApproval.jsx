@@ -20,14 +20,14 @@ function ResturantApproval() {
         fetchPendingRestaurants();
     }, []);
 
-    const handleApprove = async (resturantId) => {
+    const handleApprove = async (restaurantId) => {
         try {
             await axios.put('http://localhost:7001/api/resturants/approveRestaurant',
                 {
-                resturantId,
+                    restaurantId,
                 status: "approved"},{ withCredentials: true },);
 
-            setPendingRestaurants(prevState => prevState.filter(restaurant => restaurant._id !== resturantId));
+            setPendingRestaurants(prevState => prevState.filter(restaurant => restaurant.restaurantId !== restaurantId));
             alert("Restaurant approved!");
         } catch (err) {
             console.error("Error approving restaurant:", err);
@@ -80,8 +80,8 @@ function ResturantApproval() {
                                         <td>{restaurant.admin?.name}</td>
                                         <td>{restaurant.restaurantLocation}</td>
                                         <td>
-                                            <button className='approve-btn' onClick={() => handleApprove(restaurant._id)}>Approve</button>
-                                            <button className='reject-btn' onClick={() => handleReject(restaurant._id)}>Reject</button>
+                                            <button className='approve-btn' onClick={() => handleApprove(restaurant.restaurantId)}>Approve</button>
+                                            <button className='reject-btn' onClick={() => handleReject(restaurant.restaurantId)}>Reject</button>
                                         </td>  
                                     
                                 </tr>
