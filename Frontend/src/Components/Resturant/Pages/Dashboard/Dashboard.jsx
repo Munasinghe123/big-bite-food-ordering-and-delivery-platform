@@ -22,14 +22,14 @@ const Dashboard = () => {
   const fetchAllOrders = async () => {
     try {
       const response = await axios.get(`${url2}/orders/view-all-orders`);
-      if (response.data.success) {
-        setOrders(response.data.data);
-        console.log(response.data.data);
+
+      if (Array.isArray(response.data)) {
+        setOrders(response.data);
       } else {
         toast.error("Failed to fetch orders");
       }
     } catch (error) {
-      toast.error("Error");
+      toast.error("Error fetching orders");
     }
   };
 
@@ -169,7 +169,7 @@ const Dashboard = () => {
           <div className='table-format'>
             <div className="list-table3-format title">
               <b>Order ID</b>
-              <b>Customer ID</b>
+              <b>Customer Name</b>
               <b>Menu Item x Quantity</b>
               <b>Total Amount</b>
               <b>Order Status</b>
@@ -178,11 +178,11 @@ const Dashboard = () => {
             {orders.map((order, index) => (
               <div key={index} className="list-table3-format">
                 <p>{order.orderId}</p>
-                <p>{order.customerId}</p>
+                <p>{order.customerName}</p>
                 <p>
                   {order.items.map((item, itemIndex) => (
                     <span key={itemIndex}>
-                      {item.itemName} x {item.quantity}
+                      {item.itemId} x {item.quantity}
                       {itemIndex !== order.items.length - 1 ? ', ' : ''}
                     </span>
                   ))}
@@ -190,7 +190,7 @@ const Dashboard = () => {
                 <p>Rs.{order.totalAmount}</p>
                 <p>{order.orderStatus}</p>
                 <select className="action-status" onChange={(event) => statusHandler(event, order.orderId)} value={order.orderStatus}>
-                  <option value="" disabled selected>Pending</option>
+                  <option value="" selected>Change Status</option>
                   <option value="confirmed">Confirmed</option>
                   <option value="preparing">Preparing</option>
                   <option value="readyForPickup">Ready For Pickup</option>
