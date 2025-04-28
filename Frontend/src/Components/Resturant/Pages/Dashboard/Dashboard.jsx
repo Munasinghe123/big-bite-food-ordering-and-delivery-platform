@@ -4,6 +4,7 @@ import { BsFillArchiveFill, BsFillGrid3X3GapFill, BsPeopleFill } from 'react-ico
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import axios from 'axios';
 import Sidebar from '../../Sidebar/Sidebar';
+import { toast } from 'react-toastify';
 
 const Dashboard = () => {
   const url = "http://localhost:5004";
@@ -20,7 +21,7 @@ const Dashboard = () => {
 
   const fetchAllOrders = async () => {
     try {
-      const response = await axios.get(`${url2}/order/view-all-orders`);
+      const response = await axios.get(`${url2}/orders/view-all-orders`);
       if (response.data.success) {
         setOrders(response.data.data);
         console.log(response.data.data);
@@ -36,7 +37,7 @@ const Dashboard = () => {
     const newStatus = event.target.value;
 
     try {
-      const response = await axios.put(`${url2}/api/order/${orderId}/status`, {
+      const response = await axios.put(`${url2}/orders/${orderId}/status`, {
         orderStatus: newStatus
       });
 

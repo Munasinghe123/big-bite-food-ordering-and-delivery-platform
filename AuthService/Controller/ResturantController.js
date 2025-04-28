@@ -61,7 +61,7 @@ const registerResturant = async (req, res) => {
         const registeredResturant = await newResturant.save();
 
     
-        const resturantName = registeredResturant.resturantName;
+        const restaurantName = registeredResturant.restaurantName;
 
         // Format phone
         let adminPhone = savedResturantAdmin.phone;
@@ -75,7 +75,7 @@ const registerResturant = async (req, res) => {
             email: {
                 to: savedResturantAdmin.email,
                 subject: 'Your rergistration request has been recieved.',
-                text: `Dear ${savedResturantAdmin.name},\n\nYour ${resturantName} registration request have been recieved.We will notify you in a while.\n\nThank you!`
+                text: `Dear ${savedResturantAdmin.name},\n\nYour ${restaurantName} registration request have been recieved.We will notify you in a while.\n\nThank you!`
             },
             sms: {
                 to: adminPhone,
@@ -92,7 +92,7 @@ const registerResturant = async (req, res) => {
 
 const approveResturant = async (req, res) => {
     try {
-        const { resturantId, status } = req.body;
+        const { restaurantId, status } = req.body;
 
         if (!["approved", "rejected"].includes(status)) {
             return res.status(400).json({ message: "Invalid status value" });
@@ -101,7 +101,7 @@ const approveResturant = async (req, res) => {
         console.log("resturant route hit");
 
         const updatedResturant = await resturantModel.findByIdAndUpdate(
-            resturantId,
+            restaurantId,
             { status },
             { new: true }
         ).populate('admin');
