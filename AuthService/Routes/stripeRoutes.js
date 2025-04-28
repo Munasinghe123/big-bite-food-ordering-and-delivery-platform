@@ -6,7 +6,7 @@ const stripe = new Stripe('sk_test_51R7kKHCD9StWxqZANKHmBfSkSlNi30Ew9WbwFqFmIUda
 // Route: POST /api/stripe/create-checkout-session
 router.post('/create-checkout-session', async (req, res) => {
   try {
-    const { name} = req.body;
+    const { restaurantName} = req.body;
 
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
@@ -18,14 +18,14 @@ router.post('/create-checkout-session', async (req, res) => {
             currency: 'lkr', // Sri Lankan Rupees
             product_data: {
               name: 'Delivery Person Registration Fee',
-              description: `Registration payment for ${name}`,
+              description: `Registration payment for ${restaurantName}`,
             },
             unit_amount: 50000, // amount in cents (50000 = Rs 500)
           },
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:5173/payment-success?name=${encodeURIComponent(name)}`,
+      success_url: `http://localhost:5173/payment-success?restaurantName=${encodeURIComponent(restaurantName)}`,
       cancel_url: `http://localhost:5173/payment-cancel`,
     });
 
@@ -39,7 +39,7 @@ router.post('/create-checkout-session', async (req, res) => {
 
 router.post('/create-resturant-checkout-session', async (req, res) => {
   try {
-    const { resturantName } = req.body;
+    const { restaurantName } = req.body;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -50,14 +50,14 @@ router.post('/create-resturant-checkout-session', async (req, res) => {
             currency: 'lkr',
             product_data: {
               name: 'Restaurant Registration Fee',
-              description: `Registration payment for ${resturantName}`,
+              description: `Registration payment for ${restaurantName}`,
             },
             unit_amount: 50000, // Rs. 500
           },
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:5173/resturant-payment-success?resturantName=${encodeURIComponent(resturantName)}`,
+      success_url: `http://localhost:5173/resturant-payment-success?restaurantName=${encodeURIComponent(restaurantName)}`,
       cancel_url: `http://localhost:5173/resturant-payment-cancel`,
     });
 

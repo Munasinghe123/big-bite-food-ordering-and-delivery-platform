@@ -20,7 +20,7 @@ const Dashboard = () => {
 
   const fetchAllOrders = async () => {
     try {
-      const response = await axios.get(`${url2}/api/order/list`);
+      const response = await axios.get(`${url2}/order/view-all-orders`);
       if (response.data.success) {
         setOrders(response.data.data);
         console.log(response.data.data);

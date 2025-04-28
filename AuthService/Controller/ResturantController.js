@@ -5,8 +5,8 @@ const axios = require('axios');
 
 const registerResturant = async (req, res) => {
     try {
-        const { name, location, lat, lng, adminPassword,adminEmail,fullName,adminName,role,phone } = req.body;
-        const resturantPhoto = req.files['resturantPhoto'] ? req.files['resturantPhoto'][0].filename : null;
+        const { name, location, restaurantPhone, lat, lng, adminPassword,adminEmail,fullName,adminName,role,phone } = req.body;
+        const restaurantPhoto = req.files['resturantPhoto'] ? req.files['resturantPhoto'][0].filename : null;
         const adminPhoto = req.files['adminPhoto'] ? req.files['adminPhoto'][0].filename : null;
 
         console.log(req.body);
@@ -17,13 +17,13 @@ const registerResturant = async (req, res) => {
             return res.status(400).json({message:"User name already exixts"});
         }
 
-        if (!name || !location || !resturantPhoto || !lat || !lng  ||
+        if (!name || !location || !restaurantPhoto || !lat || !lng  || !restaurantPhone ||
             !adminPassword||!adminEmail||!adminName||!role||!adminPhoto || !phone) {
             console.log("Provide all the required fields");
             return res.status(404).json({ message: "Provide all the required fields" });
         }
 
-        const existingName = await resturantModel.findOne({ resturantName: name, resturantLocation: location });
+        const existingName = await resturantModel.findOne({ restaurantName: name, restaurantLocation: location });
         if (existingName) {
             console.log("Resturant already exists!");
             return res.status(409).json({ message: "Resturant already exists!" });
@@ -48,10 +48,11 @@ const registerResturant = async (req, res) => {
 
         //saving the resturant
         const newResturant = new resturantModel({
-            resturantName: name,
-            resturantLocation: location,
-            resturantPhoto,
+            restaurantName: name,
+            restaurantLocation: location,
+            restaurantPhoto,
             paymentStatus: "Pending",
+            restaurantPhone,
             lat,
             lng,
             admin:savedResturantAdmin._id,
@@ -171,10 +172,10 @@ const getRejectedResturant = async(req,res)=>{
 
 const updateResturantPaymentStatus = async (req, res) => {
     try {
-        const resturantName = req.params.id;
+        const restaurantName = req.params.id;
 
         const resturant = await resturantModel.findOneAndUpdate(
-            {resturantName},
+            {restaurantName},
             { paymentStatus: "Paid" },
             { new: true }
         );
@@ -211,6 +212,8 @@ const getAllRestaurants = async (req, res) => {
       res.status(500).json({ success: false, message: 'Server error' });
     }
   };
+
+  
   
 
 

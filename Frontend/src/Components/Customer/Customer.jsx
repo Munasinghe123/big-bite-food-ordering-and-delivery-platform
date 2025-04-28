@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { useNavigate } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
@@ -68,7 +67,7 @@ function Customer() {
         axios.get('http://localhost:7001/api/resturants/list')
             .then(res => {
                 if (res.data.success) {
-                    const openedRestaurants = res.data.data.filter(r => r.status === 'Opened');
+                    const openedRestaurants = res.data.data.filter(r => r.openStatus === 'open');
                     setRestaurants(openedRestaurants);
                 }
             })
@@ -133,6 +132,10 @@ function Customer() {
       
         try {
           // 1. Create order
+
+          console.log(selectedRestaurantDetails);
+          console.log(customer);
+
           const response = await axios.post('http://localhost:5000/orders/create-order', {
             cartId: `CART-${customer.name}-${Date.now()}`,
             customerUsername: customer.name,
@@ -141,7 +144,7 @@ function Customer() {
             customerEmail: customer.email,
             restaurantId: selectedRestaurantDetails.restaurantId,
             restaurantName: selectedRestaurantDetails.restaurantName,
-            restaurantPhone: '0112223333',
+            restaurantPhone: selectedRestaurantDetails.restaurantPhone,
             restaurantLocationLatitude: selectedRestaurantDetails.lat,
             restaurantLocationLongitude: selectedRestaurantDetails.lng,
             items: cart.map(item => ({
@@ -159,7 +162,6 @@ function Customer() {
       
           const order = response.data.order; // Created order object
       
-          // 2. Create Stripe Checkout Session
           const res = await axios.post('http://localhost:5000/stripe/create-checkout-session', {
             orderId: order.orderId,
             amount: order.totalAmount,
@@ -167,7 +169,6 @@ function Customer() {
             customerName: order.customerName,
         });
         
-        // Redirect to Stripe checkout
         window.location.href = res.data.url;
         
       
@@ -232,7 +233,7 @@ function Customer() {
               {restaurants.map((res) => (
                   <div key={res.restaurantId} className="restaurant-card" onClick={() => handleRestaurantClick(res.restaurantId)}>
                       <img
-                          src={`http://localhost:7001/images/${res.restaurantPhoto}`}
+                          src={`http://localhost:7001/api/uploads/${res.restaurantPhoto}`}
                           alt={res.restaurantName}
                           className="restaurant-img"
                       />
@@ -250,7 +251,7 @@ function Customer() {
               {selectedRestaurantDetails && (
                   <div className="menu-restaurant-info">
                       <img
-                          src={`http://localhost:5004/images/${selectedRestaurantDetails.restaurantPhoto}`}
+                          src={`http://localhost:7001/api/uploads/${selectedRestaurantDetails.restaurantPhoto}`}
                           alt={selectedRestaurantDetails.restaurantName}
                           className="restaurant-banner-img"
                       />

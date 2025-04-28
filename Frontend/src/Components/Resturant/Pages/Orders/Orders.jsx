@@ -13,7 +13,7 @@ const Orders = () => {
 
 	const fetchAllOrders = async () => {
 		try {
-			const response = await axios.get(`${url2}/api/order/list`);
+			const response = await axios.get(`${url2}/orders/view-all-orders`);
 			if (response.data.success) {
 				setOrders(response.data.data);
 				console.log(response.data.data);
@@ -73,7 +73,6 @@ const Orders = () => {
 
 							<div>
 								<p className='order-item-id'><strong>Order ID:</strong> {order.orderId}</p>
-								<p className='order-customer-id'><strong>Customer ID:</strong> {order.customerId}</p>
 								<p className='order-item-address'><strong>Payment Status:</strong> {order.paymentStatus}</p>
 								<p className='order-item-address'><strong>Order Time:</strong> {new Date(order.orderTime).toLocaleString()}</p>
 								<p className='order-item-phone'><strong>Order Status:</strong> {order.orderStatus}</p>

@@ -8,15 +8,15 @@ function ResturantPaymentSuccess() {
 
   useEffect(() => {
     const updatePaymentStatus = async () => {
-      const resturantName = new URLSearchParams(location.search).get('resturantName');
+      const restaurantName = new URLSearchParams(location.search).get('restaurantName');
       
-      if (!resturantName) {
+      if (!restaurantName) {
         console.error('Resturant Name not found in URL');
         return;
       }
 
       try {
-        await axios.put(`http://localhost:7001/api/resturants/updateResturantPaymentStatus/${resturantName}`);
+        await axios.put(`http://localhost:7001/api/resturants/updateResturantPaymentStatus/${restaurantName}`);
         console.log('Payment status updated successfully!');
       } catch (error) {
         console.error('Error updating payment status:', error);
