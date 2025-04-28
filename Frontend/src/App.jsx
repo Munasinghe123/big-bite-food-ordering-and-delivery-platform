@@ -17,6 +17,9 @@ import PaymentSuccessC from "./Components/Customer/PaymentSuccess";
 import PaymentCancelC from "./Components/Customer/PaymentCancel";
 import OrderDetails from './Components/Customer/OrderDetails';
 import OrderHistory from './Components/Customer/OrderHistory';
+import TrackOrder from './Components/Customer/TrackOrder';
+import CancelOrder from './Components/Customer/CancelOrder';
+
 
 //resturnat
 import Dashboard from "./Components/Resturant/Pages/Dashboard/Dashboard";
@@ -28,6 +31,9 @@ import UpdateRestaurant from "./Components/Resturant/Pages/UpdateRestaurant/Upda
 
 //delivery Person
 import DeliveryPerson from "./Components/DeliveryPerson/DeliveryPerson";
+import DOrderDetails from './Components/DeliveryPerson/OrderDetails'
+import Deliveryconfirm from './Components/DeliveryPerson/deliveryconfirm'
+import DeliveryDashboard from './Components/DeliveryPerson/DeliveryDashboard'
 
 
 //common
@@ -81,6 +87,8 @@ function App() {
                   <Route path="/payment-cancel" element={<PaymentCancelC />} />
                   <Route path="/order-details/:id" element={<OrderDetails />} />
                   <Route path="/order-history/:username" element={<OrderHistory />} />
+                  <Route path="/track-order/:orderId" element={<TrackOrder />} />
+                  <Route path="/CancelOrder" element={<CancelOrder/>} />
                   </>
                 )
               }
@@ -100,8 +108,13 @@ function App() {
 
               {
                 user.role === "DeliveryPerson" && (
+                  <>
                   <Route path="/DeliveryPerson" element={<DeliveryPerson />} />
-                )
+                  <Route path="/OrderDetails" element = {<DOrderDetails/>}/>
+                  <Route path="/Deliveryconfirm" element = {<Deliveryconfirm/>}/>
+                  <Route path="/DeliveryDashboard" element = {<DeliveryDashboard/>}/>
+                  </>
+                )                
               }
             </>
           ) : (
@@ -118,7 +131,6 @@ function App() {
               <Route path='/resturant-payment-cancel' element={<ResturantPaymentCancel />} />
             </>
           )
-
         }
       </Routes>
     </>

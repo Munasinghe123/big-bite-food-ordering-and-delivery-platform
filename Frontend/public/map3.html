@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Tracking Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100%; }
+    .warning {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 224, 0.9);
+      color: #856404;
+      padding: 10px;
+      border: 1px solid #ffeeba;
+      border-radius: 5px;
+      max-width: 300px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script>
+    // Parse query parameters
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('orderId');
+    const restaurantLat = parseFloat(params.get('restaurantLat'));
+    const restaurantLon = parseFloat(params.get('restaurantLon'));
+    const deliveryLat = parseFloat(params.get('deliveryLat'));
+    const deliveryLon = parseFloat(params.get('deliveryLon'));
+
+    // Validate coordinates
+    function isValidCoordinate(lat, lon) {
+      return !isNaN(lat) && lat >= -90 && lat <= 90 && !isNaN(lon) && lon >= -180 && lon <= 180;
+    }
+
+    if (
+      !orderId ||
+      !isValidCoordinate(restaurantLat, restaurantLon) ||
+      !isValidCoordinate(deliveryLat, deliveryLon)
+    ) {
+      document.getElementById('map').innerHTML = '<p style="text-align: center; margin-top: 20px; color: red;">Invalid order or coordinates. Please try again.</p>';
+      console.error('Invalid parameters:', { orderId, restaurantLat, restaurantLon, deliveryLat, deliveryLon });
+      throw new Error('Invalid order or coordinates');
+    }
+
+    console.log('Initializing map with:', { orderId, restaurantLat, restaurantLon, deliveryLat, deliveryLon });
+
+    // Initialize map
+    const map = L.map('map').setView([restaurantLat, restaurantLon], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Add static markers
+    L.marker([restaurantLat, restaurantLon])
+      .addTo(map)
+      .bindPopup('Restaurant Location')
+      .openPopup();
+    L.marker([deliveryLat, deliveryLon])
+      .addTo(map)
+      .bindPopup('Your Location');
+
+    // Initialize routing
+    let routeCoordinates = [];
+    const routingControl = L.Routing.control({
+      waypoints: [
+        L.latLng(restaurantLat, restaurantLon),
+        L.latLng(deliveryLat, deliveryLon)
+      ],
+      routeWhileDragging: false,
+      show: true,
+      addWaypoints: false,
+      fitSelectedRoutes: true,
+      lineOptions: { styles: [{ color: 'blue', weight: 4 }] },
+      router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' }),
+      createMarker: () => null
+    })
+      .on('routesfound', (e) => {
+        console.log('Route found:', e.routes);
+        routeCoordinates = e.routes[0].coordinates;
+      })
+      .on('routingerror', (err) => {
+        console.error('Routing error:', err);
+        document.getElementById('map').innerHTML = '<p style="text-align: center; margin-top: 20px; color: red;">Failed to calculate route. Locations may be too far apart or unreachable.</p>';
+      })
+      .addTo(map);
+
+    // Add OSRM warning
+    const warningDiv = L.DomUtil.create('div', 'warning');
+    warningDiv.innerHTML = 'Using OSRM demo server, not suitable for production. Consider a paid service like Mapbox or GraphHopper.';
+    document.getElementById('map').appendChild(warningDiv);
+
+    // Initialize driver marker
+    const driverMarker = L.marker([restaurantLat, restaurantLon], {
+      icon: L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
+      })
+    })
+      .addTo(map)
+      .bindPopup('Delivery Person');
+
+    // Simulate driver movement
+    function simulateDriverMovement() {
+      let progress = 0;
+      const interval = setInterval(() => {
+        if (routeCoordinates.length === 0) return; // Wait for route
+        progress += 0.02; // Move 2% per second (50 seconds total)
+        if (progress >= 1) {
+          clearInterval(interval);
+          return;
+        }
+
+        const index = Math.floor(progress * (routeCoordinates.length - 1));
+        const nextIndex = Math.min(index + 1, routeCoordinates.length - 1);
+        const frac = (progress * (routeCoordinates.length - 1)) % 1;
+        const lat = routeCoordinates[index].lat + frac * (routeCoordinates[nextIndex].lat - routeCoordinates[index].lat);
+        const lon = routeCoordinates[index].lng + frac * (routeCoordinates[nextIndex].lng - routeCoordinates[index].lng);
+
+        console.log('Updating driver position:', { lat, lon });
+        driverMarker.setLatLng([lat, lon]);
+      }, 1000); // Update every 1 second
+    }
+
+    // Start simulation after route is found
+    routingControl.on('routesfound', () => {
+      simulateDriverMovement();
+    });
+  </script>
+</body>
+</html>

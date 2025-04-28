@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Driver = require('../Models/DriverModel');
 const calculateDistance = require('../Middleware/calculateDistance');
+const OrderCancellation = require('../Models/OrderCancellationModel'); // Added import
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../utils/notifications');
@@ -740,6 +741,214 @@ router.post('/sendEmail', verifyToken, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to initiate email sending',
+      error: err.message,
+    });
+  }
+});
+
+// Cancel an order
+router.post('/cancel-order', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    if (userRole !== 'Customer') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only customers can cancel orders',
+      });
+    }
+
+    const {
+      orderId,
+      cancellationReason,
+      additionalComments,
+      acknowledgment,
+    } = req.body;
+
+    // Validate required fields
+    if (!orderId || !cancellationReason || acknowledgment === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: orderId, cancellationReason, or acknowledgment',
+      });
+    }
+
+    if (typeof acknowledgment !== 'boolean' || !acknowledgment) {
+      return res.status(400).json({
+        success: false,
+        message: 'Acknowledgment is required to cancel the order',
+      });
+    }
+
+    // Fetch order details from order-service
+    let order;
+    try {
+      // Try fetching specific order first (if endpoint exists)
+      try {
+        const response = await axios.get(`http://localhost:5000/orders/${orderId}`);
+        order = response.data;
+      } catch (specificErr) {
+        console.warn(`Specific order fetch failed for ${orderId}, falling back to view-all-orders: ${specificErr.message}`);
+        const response = await axios.get(`http://localhost:5000/orders/view-all-orders`);
+        order = response.data.find(o => o.orderId === orderId);
+      }
+    } catch (apiErr) {
+      console.error('Error fetching order from order-service:', apiErr.message);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to fetch order from order-service',
+        details: apiErr.message,
+      });
+    }
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: `Order ${orderId} not found`,
+      });
+    }
+
+    // Handle missing customerId
+    if (!order.customerId) {
+      console.warn(`Order ${orderId} is missing customerId:`, order);
+      console.log('JWT user data:', req.user);
+      // Fallback: Use the authenticated user's ID as customerId
+      order.customerId = userId;
+      console.log(`Assigned fallback customerId (${userId}) to order ${orderId}`);
+
+      // Update the order in the order-service to persist customerId
+      try {
+        await axios.put(`http://localhost:5000/orders/update/${orderId}`, {
+          customerId: userId,
+        });
+        console.log(`Updated order ${orderId} with customerId ${userId} in order-service`);
+      } catch (updateErr) {
+        console.warn(`Failed to update order ${orderId} with customerId: ${updateErr.message}`);
+        // Proceed with cancellation but log the failure
+      }
+    }
+
+    // Verify the order belongs to the customer
+    console.log('User ID from token:', userId);
+    console.log('Order customerId:', order.customerId);
+    if (order.customerId.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: `You are not authorized to cancel this order (customerId: ${order.customerId}, userId: ${userId})`,
+      });
+    }
+
+    // Check if order is in a cancellable state
+    const cancellableStatuses = ['pending', 'confirmed', 'preparing', 'readyForPickup', 'driverAssigned', 'driverAccepted'];
+    if (!cancellableStatuses.includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Order cannot be canceled in ${order.orderStatus} status`,
+      });
+    }
+
+    // Save cancellation record
+    const cancellation = new OrderCancellation({
+      orderId,
+      userId,
+      cancellationReason,
+      additionalComments: additionalComments || '',
+      acknowledgment,
+      orderStatusAtCancellation: order.orderStatus,
+    });
+    await cancellation.save();
+
+    // Update order status to 'cancelled'
+    let updatedOrder;
+    try {
+      const response = await axios.put(`http://localhost:5000/orders/update-order-status/${orderId}`, {
+        orderStatus: 'cancelled',
+      });
+      updatedOrder = response.data.updatedOrder;
+    } catch (apiErr) {
+      console.error('Error updating order status via order-service:', apiErr.message);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update order status via order-service',
+        details: apiErr.message,
+      });
+    }
+
+    // Handle driver if assigned
+    if (order.deliveryPersonId && ['driverAssigned', 'driverAccepted'].includes(order.orderStatus)) {
+      try {
+        const driver = await Driver.findOne({ userId: order.deliveryPersonId });
+        if (driver) {
+          // Update driver availability
+          await Driver.findOneAndUpdate(
+            { userId: order.deliveryPersonId },
+            {
+              $set: { isAvailable: true },
+              $inc: { currentOrders: -1 },
+            }
+          );
+
+          // Notify driver via email and SMS using notification service
+          const emailSubject = `Order Cancelled - Order ID: ${orderId}`;
+          const emailBody = `Hello ${order.deliveryPersonName},\n\nThe order with ID ${orderId} has been cancelled by the customer.\n\nReason: ${cancellationReason}\n\n${
+            additionalComments ? `Additional Comments: ${additionalComments}\n\n` : ''
+          }Please dispose of any picked-up items as you see fit or return to the restaurant if applicable.\n\nBest regards,\nYour Delivery App Team`;
+          const smsBody = `Order ${orderId} cancelled. Reason: ${cancellationReason}. ${
+            additionalComments ? `Comments: ${additionalComments}. ` : ''
+          }Dispose of items or return to restaurant.`;
+
+          try {
+            await axios.post('http://localhost:7000/api/notifications/send-notifications', {
+              email: {
+                to: driver.email,
+                subject: emailSubject,
+                text: emailBody,
+              },
+              sms: {
+                to: driver.phone,
+                body: smsBody,
+              },
+            });
+            console.log(`Notifications sent for order ${orderId} to ${driver.email} and ${driver.phone}`);
+          } catch (notificationErr) {
+            console.warn(`Failed to send notifications for order ${orderId} to ${driver.email} or ${driver.phone}: ${notificationErr.message}`);
+          }
+        }
+      } catch (driverErr) {
+        console.warn(`Error updating driver ${order.deliveryPersonId}: ${driverErr.message}`);
+      }
+    }
+
+    // Format order details for response
+    const orderDetails = {
+      orderNumber: order.orderId,
+      orderDateTime: order.orderDate,
+      restaurant: order.restaurantName,
+      deliveryAddress: `${order.deliveryLocationLatitude}, ${order.deliveryLocationLongitude}`,
+      assignedDeliveryPerson: order.deliveryPersonName
+        ? `${order.deliveryPersonName} (ID: ${order.deliveryPersonId})`
+        : 'Not assigned',
+      orderStatus: order.orderStatus,
+    };
+
+    res.status(200).json({
+      success: true,
+      message: 'Order cancelled successfully',
+      data: {
+        orderDetails,
+        cancellation: {
+          reason: cancellationReason,
+          additionalComments,
+          acknowledgment,
+        },
+      },
+    });
+  } catch (err) {
+    console.error('Error in /cancel-order:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while cancelling order',
       error: err.message,
     });
   }

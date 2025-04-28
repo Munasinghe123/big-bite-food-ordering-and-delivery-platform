@@ -292,7 +292,7 @@ const DeliveryPerson = () => {
       }
 
       // Navigate to OrderDetails in the current tab
-      navigate('/OrderDetails', {
+      navigate('/DOrderDetails', {
         state: {
           order: { ...order, status: updatedOrder.orderStatus },
         },
