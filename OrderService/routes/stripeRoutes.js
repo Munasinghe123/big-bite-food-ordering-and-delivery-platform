@@ -4,7 +4,7 @@ const Stripe = require('stripe');
 const Order = require('../models/Order'); // your Order model
 
 // Initialize Stripe instance
-const stripe = new Stripe('..'); // << put your secret key here
+const stripe = new Stripe('sk_test_51RHlmtPIEAGnbZzQif2Cof9KPE93wjkJg2dcI7BzI9lGiVoEULxHD92RtIwOYdnpdKoxaWQTeEmqvCZytgmZxs4e00MABbu6PM'); // << put your secret key here
 
 router.post('/create-checkout-session', async (req, res) => {
   try {

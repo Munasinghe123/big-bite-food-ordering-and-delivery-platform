@@ -6,12 +6,12 @@ import { assets } from '../../../assets/assets';
 import './Sidebar.css';
 
 const Sidebar = () => {
-  const url = 'http://localhost:5004';
+  const url = 'http://localhost:7001';
   const [list, setList] = useState([]);
 
   const fetchAllRestaurants = async () => {
     try {
-      const response = await axios.get(`${url}/api/restaurant/list`);
+      const response = await axios.get(`${url}/api/resturants/list`);
       if (response.data.success) {
         setList(response.data.data);
       } else {
