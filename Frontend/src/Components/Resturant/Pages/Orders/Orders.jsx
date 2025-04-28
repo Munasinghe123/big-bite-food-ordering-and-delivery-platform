@@ -14,9 +14,9 @@ const Orders = () => {
 	const fetchAllOrders = async () => {
 		try {
 			const response = await axios.get(`${url2}/orders/view-all-orders`);
-			if (response.data.success) {
-				setOrders(response.data.data);
-				console.log(response.data.data);
+
+			if (Array.isArray(response.data)) {
+				setOrders(response.data);
 			} else {
 				toast.error("Failed to fetch orders");
 			}
@@ -82,7 +82,7 @@ const Orders = () => {
 								<p>Menu Item x Quantity:</p>
 								{order.items.map((item, itemIndex) => (
 									<span key={itemIndex}>
-										{item.itemName} x {item.quantity}
+										{item.itemId} x {item.quantity}
 										{itemIndex !== order.items.length - 1 ? ', ' : ''}
 									</span>
 								))}
