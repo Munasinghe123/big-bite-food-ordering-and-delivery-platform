@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Route Map</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <!-- Leaflet Routing Machine CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+    h1 {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+    #startButton {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      z-index: 1000;
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #startButton:hover {
+      background: #218838;
+    }
+    #startButton:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    .error {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px 20px;
+      border: 1px solid #f5c6cb;
+      border-radius: 5px;
+      z-index: 1000;
+      max-width: 80%;
+      text-align: center;
+    }
+    .coordinates-info {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Navigation from Driver to Restaurant</h1>
+  <button id="startButton" disabled>Start Navigation</button>
+  <div id="map"></div>
+  <div class="coordinates-info" id="coordinatesInfo"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <!-- Leaflet Routing Machine JS -->
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script>
+    // Function to validate coordinates
+    function isValidCoordinate(lat, lon) {
+      const validLat = !isNaN(lat) && lat >= -90 && lat <= 90;
+      const validLon = !isNaN(lon) && lon >= -180 && lon <= 180;
+      return validLat && validLon;
+    }
+
+    // Extract coordinates from URL query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const driverLat = parseFloat(urlParams.get('driverLat'));
+    const driverLon = parseFloat(urlParams.get('driverLon'));
+    const restaurantLat = parseFloat(urlParams.get('restaurantLat'));
+    const restaurantLon = parseFloat(urlParams.get('restaurantLon'));
+
+    // Display coordinates for debugging
+    document.getElementById('coordinatesInfo').innerHTML = `
+      <strong>Driver:</strong> ${driverLat}, ${driverLon}<br>
+      <strong>Restaurant:</strong> ${restaurantLat}, ${restaurantLon}
+    `;
+
+    // Validate coordinates
+    let errorMessage = '';
+    if (isNaN(driverLat) || isNaN(driverLon)) {
+      errorMessage += 'Driver coordinates are invalid or missing. ';
+    } else if (!isValidCoordinate(driverLat, driverLon)) {
+      errorMessage += `Driver coordinates out of range: lat=${driverLat}, lon=${driverLon}. `;
+    }
+    if (isNaN(restaurantLat) || isNaN(restaurantLon)) {
+      errorMessage += 'Restaurant coordinates are invalid or missing. ';
+    } else if (!isValidCoordinate(restaurantLat, restaurantLon)) {
+      errorMessage += `Restaurant coordinates out of range: lat=${restaurantLat}, lon=${restaurantLon}. `;
+    }
+
+    if (errorMessage) {
+      console.error('Coordinate validation failed:', errorMessage);
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error';
+      errorDiv.textContent = errorMessage || 'Invalid coordinates. Please ensure all location data is provided correctly.';
+      document.body.appendChild(errorDiv);
+    } else {
+      // Initialize the map, centered on driver location
+      const map = L.map('map').setView([driverLat, driverLon], 13);
+
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      // Add markers for driver and restaurant
+      const driverMarker = L.marker([driverLat, driverLon])
+        .addTo(map)
+        .bindPopup('Your Location (Driver)')
+        .openPopup();
+
+      const restaurantMarker = L.marker([restaurantLat, restaurantLon])
+        .addTo(map)
+        .bindPopup('Restaurant Location');
+
+      // Enable the Start button
+      const startButton = document.getElementById('startButton');
+      startButton.disabled = false;
+
+      // Add event listener for the Start button
+      startButton.addEventListener('click', () => {
+        startButton.disabled = true;
+        startButton.textContent = 'Calculating Route...';
+
+        // Remove any existing error messages
+        const existingErrors = document.querySelectorAll('.error');
+        existingErrors.forEach(el => el.remove());
+
+        // Show the route using OSRM with better error handling
+        console.log('Calculating route from', [driverLat, driverLon], 'to', [restaurantLat, restaurantLon]);
+        
+        const routingControl = L.Routing.control({
+          waypoints: [
+            L.latLng(driverLat, driverLon),
+            L.latLng(restaurantLat, restaurantLon)
+          ],
+          routeWhileDragging: false,
+          show: true,
+          addWaypoints: false,
+          fitSelectedRoutes: true,
+          lineOptions: {
+            styles: [{ color: 'blue', weight: 4 }],
+          },
+          router: L.Routing.osrmv1({
+            serviceUrl: 'https://router.project-osrm.org/route/v1',
+          }),
+          createMarker: () => null, // Hide default waypoints markers
+        }).on('routingerror', function(error) {
+          console.error('Routing error:', error);
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error';
+          
+          if (error && error.error && error.error.message === 'No route found') {
+            errorDiv.textContent = 'No route could be found between these locations.';
+          } else if (error && error.status === 400) {
+            errorDiv.textContent = 'Invalid route coordinates. Please check the locations.';
+          } else {
+            errorDiv.textContent = 'Failed to calculate route. The routing service may be unavailable or the locations too distant.';
+          }
+          
+          document.body.appendChild(errorDiv);
+          startButton.disabled = false;
+          startButton.textContent = 'Start Navigation';
+        }).on('routesfound', function(e) {
+          console.log('Route found:', e.routes);
+          startButton.textContent = 'Route Displayed';
+          startButton.style.backgroundColor = '#6c757d';
+        }).addTo(map);
+      });
+    }
+  </script>
+</body>
+</html>

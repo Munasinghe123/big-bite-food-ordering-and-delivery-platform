@@ -72,13 +72,13 @@ function ResturantApproval() {
                             {pendingRestaurants.map((restaurant) => (
                                 <tr key={restaurant._id}>
                                    
-                                        <td>{restaurant.resturantName}</td>
+                                        <td>{restaurant.restaurantName}</td>
                                         <td>
-                                            <img src={`http://localhost:7001/api/uploads/${restaurant.resturantPhoto}`}
+                                            <img src={`http://localhost:7001/api/uploads/${restaurant.restaurantPhoto}`}
                                             className='dp-photo'/>
                                         </td>
                                         <td>{restaurant.admin?.name}</td>
-                                        <td>{restaurant.resturantLocation}</td>
+                                        <td>{restaurant.restaurantLocation}</td>
                                         <td>
                                             <button className='approve-btn' onClick={() => handleApprove(restaurant._id)}>Approve</button>
                                             <button className='reject-btn' onClick={() => handleReject(restaurant._id)}>Reject</button>

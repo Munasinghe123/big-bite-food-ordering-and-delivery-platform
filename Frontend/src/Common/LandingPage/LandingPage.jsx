@@ -6,28 +6,27 @@ function LandingPage() {
     return (
         <div className='landing-page-container'>
             <section className='hero-section'>
-                <h2 className='hero-heading'>Order.Eat and Repeat!!!</h2>
-                <p className='hero-paragraph'>Deliciuos food delivered at your door step</p>
-                <button className='hero-button'>Order now</button>
+                <h2 className='hero-heading'>Order. Eat. Repeat!!!</h2>
+                <p className='hero-paragraph'>Delicious meals, delivered fast to your doorstep.</p>
+                <Link to="/menu" className="hero-button">Order Now</Link>
             </section>
 
             <section className='features-section'>
                 <div className='feature-card'>
-                    <h3>Fresh food</h3>
-                    <p>We deliver fresh food at your door step</p>
+                    <h3>Fresh Food</h3>
+                    <p>We deliver freshly prepared meals with top quality ingredients.</p>
                 </div>
 
                 <div className='feature-card'>
-                    <h3>Track your food delivery</h3>
-                    <p>Our real time food delivery tracker allows you to track the location of your food</p>
+                    <h3>Track Your Delivery</h3>
+                    <p>Stay updated in real-time with our smart delivery tracking system.</p>
                 </div>
 
                 <div className='feature-card'>
                     <h3>Secure Payments</h3>
-                    <p>Your payment details are secure with us.</p>
+                    <p>Experience fast and secure payments with trusted gateways.</p>
                 </div>
             </section>
-
         </div>
     )
 }

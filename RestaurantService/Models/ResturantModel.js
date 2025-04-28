@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
-const restaurantSchema = new mongoose.Schema({
+const restaurantSchema = mongoose.Schema({
+
     restaurantId: {
         type: String,
         unique: true
@@ -17,6 +18,12 @@ const restaurantSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+
+    restaurantPhone: {
+        type: String,
+        required: true
+    },
+
     lat: { 
         type: String, 
         required: true 
@@ -25,24 +32,33 @@ const restaurantSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
-    /*admin: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'UserModel',
-        required: true
-    },*/
-    status: {
+    paymentStatus: {
         type: String,
-        enum: ['Opened', 'Closed'],
-        required: true
+        enum: ["Pending", "Paid"],        
+        default: "Pending"        
+    }, 
+
+    admin:{
+        type:mongoose.Schema.ObjectId,
+        ref:'UserModel',
+        required:true
     },
-    /*balance: {
-        type: Number,
-        default: 0
-    }*/
+
+    status:{
+        type:String,
+        enum:["pending","approved","rejected"],
+        default:"pending"
+    },
+
+    openStatus:{
+        type:String,
+        enum:["open","closed"],
+        default:"open"
+    }
 });
 
-// Generate restaurantId before saving
 restaurantSchema.pre('save', async function(next) {
+
     if(!this.isNew) {
         return next();
     }
@@ -63,4 +79,4 @@ restaurantSchema.pre('save', async function(next) {
     }
 });
 
-module.exports = mongoose.model('Restaurant', restaurantSchema);
+module.exports = mongoose.model("Restaurant", restaurantSchema)

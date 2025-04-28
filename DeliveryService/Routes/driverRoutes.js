@@ -3,11 +3,12 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Driver = require('../Models/DriverModel');
 const calculateDistance = require('../Middleware/calculateDistance');
+const OrderCancellation = require('../Models/OrderCancellationModel'); // Added import
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../utils/notifications');
 
-// Custom verifyToken middleware to validate JWT from friend's auth serviceee
+// Custom verifyToken middleware to validate JWT from auth service
 const verifyToken = (req, res, next) => {
   let token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
@@ -28,12 +29,10 @@ const verifyToken = (req, res, next) => {
 // Helper function to fetch a single user's data from auth service
 async function fetchUserFromAuth(userId, token) {
   try {
-    // Fetch delivery persons from auth service
     const response = await axios.get('http://localhost:7001/api/delivery/pending', {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    // Find the user in the response
     const users = response.data.pendingDeliveryPerson || [];
     const authUser = users.find((user) => user._id === userId);
 
@@ -66,12 +65,10 @@ router.put('/update-location', verifyToken, async (req, res) => {
   }
 
   try {
-    // Verify user role from JWT
     if (req.user.role !== 'DeliveryPerson') {
       return res.status(403).json({ message: 'Only DeliveryPerson users can update driver location.' });
     }
 
-    // Fetch user data to update Driver document
     let user;
     try {
       user = await fetchUserFromAuth(userId, token);
@@ -80,7 +77,6 @@ router.put('/update-location', verifyToken, async (req, res) => {
       user = { id: userId, name: req.user.name, email: req.user.email, phone: '', role: req.user.role };
     }
 
-    // Update or create Driver document
     let driver = await Driver.findOne({ userId });
     if (!driver) {
       driver = new Driver({
@@ -118,9 +114,11 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
       const response = await axios.get('http://localhost:5000/orders/view-all-orders');
       pendingOrders = response.data.filter(
         (order) =>
-          order.orderStatus === 'readyForPickup' &&
+          order.orderStatus === 'pending' &&
+          order.paymentStatus === 'Paid' &&
           (!order.deliveryPersonId || order.deliveryPersonId === '')
       );
+      console.log(`Found ${pendingOrders.length} eligible orders for assignment:`, pendingOrders.map(o => o.orderId));
     } catch (apiErr) {
       console.error('Error fetching orders from order-service:', apiErr.message);
       return res.status(500).json({
@@ -133,7 +131,7 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
     if (!pendingOrders.length) {
       return res.status(404).json({
         success: false,
-        message: 'No valid pending orders available for delivery',
+        message: 'No valid pending orders with paid status available for delivery',
       });
     }
 
@@ -143,7 +141,7 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
       role: 'DeliveryPerson',
       name: { $exists: true, $ne: '' },
       email: { $exists: true, $ne: '' },
-      phone: { $exists: true }, // Allow empty phone but ensure field exists
+      phone: { $exists: true },
       'currentLocation.latitude': { $exists: true, $ne: null },
       'currentLocation.longitude': { $exists: true, $ne: null },
     });
@@ -179,7 +177,6 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
         let driverUser = null;
 
         for (const driver of drivers) {
-          // Verify driver data integrity
           if (!driver.role || driver.role !== 'DeliveryPerson') {
             console.warn(`Skipping driver ${driver.userId}: Invalid role (${driver.role})`);
             continue;
@@ -435,7 +432,6 @@ router.post('/sync-drivers', verifyToken, async (req, res) => {
   try {
     const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
 
-    // Clean invalid Driver documents
     const drivers = await Driver.find();
     for (const driver of drivers) {
       try {
@@ -446,7 +442,6 @@ router.post('/sync-drivers', verifyToken, async (req, res) => {
           );
           await Driver.deleteOne({ _id: driver._id });
         } else {
-          // Update driver with latest user data
           driver.name = user.name;
           driver.email = user.email;
           driver.phone = user.phone;
@@ -459,7 +454,6 @@ router.post('/sync-drivers', verifyToken, async (req, res) => {
       }
     }
 
-    // Fetch DeliveryPerson users from auth service
     let deliveryPersons;
     try {
       const response = await axios.get('http://localhost:7001/api/delivery/pending', {
@@ -503,7 +497,6 @@ router.post('/sync-drivers', verifyToken, async (req, res) => {
         console.log(`Added new driver for user ${user._id}`);
         syncedCount++;
       } else {
-        // Update existing driver
         existingDriver.name = user.name || existingDriver.name;
         existingDriver.email = user.email || existingDriver.email;
         existingDriver.phone = user.phone || existingDriver.phone;
@@ -612,7 +605,6 @@ router.post('/record-delivery', verifyToken, async (req, res) => {
       });
     }
 
-    // Update driver availability
     await Driver.findOneAndUpdate(
       { userId: deliveryPersonId },
       {
@@ -643,7 +635,7 @@ router.get('/customer-orders', verifyToken, async (req, res) => {
     const userRole = req.user.role;
 
     if (userRole !== 'Customer') {
-      return res.status(403).json({
+      return res.status(400).json({
         success: false,
         message: 'Only customers can view their orders',
       });
@@ -749,6 +741,214 @@ router.post('/sendEmail', verifyToken, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to initiate email sending',
+      error: err.message,
+    });
+  }
+});
+
+// Cancel an order
+router.post('/cancel-order', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    if (userRole !== 'Customer') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only customers can cancel orders',
+      });
+    }
+
+    const {
+      orderId,
+      cancellationReason,
+      additionalComments,
+      acknowledgment,
+    } = req.body;
+
+    // Validate required fields
+    if (!orderId || !cancellationReason || acknowledgment === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: orderId, cancellationReason, or acknowledgment',
+      });
+    }
+
+    if (typeof acknowledgment !== 'boolean' || !acknowledgment) {
+      return res.status(400).json({
+        success: false,
+        message: 'Acknowledgment is required to cancel the order',
+      });
+    }
+
+    // Fetch order details from order-service
+    let order;
+    try {
+      // Try fetching specific order first (if endpoint exists)
+      try {
+        const response = await axios.get(`http://localhost:5000/orders/${orderId}`);
+        order = response.data;
+      } catch (specificErr) {
+        console.warn(`Specific order fetch failed for ${orderId}, falling back to view-all-orders: ${specificErr.message}`);
+        const response = await axios.get(`http://localhost:5000/orders/view-all-orders`);
+        order = response.data.find(o => o.orderId === orderId);
+      }
+    } catch (apiErr) {
+      console.error('Error fetching order from order-service:', apiErr.message);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to fetch order from order-service',
+        details: apiErr.message,
+      });
+    }
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: `Order ${orderId} not found`,
+      });
+    }
+
+    // Handle missing customerId
+    if (!order.customerId) {
+      console.warn(`Order ${orderId} is missing customerId:`, order);
+      console.log('JWT user data:', req.user);
+      // Fallback: Use the authenticated user's ID as customerId
+      order.customerId = userId;
+      console.log(`Assigned fallback customerId (${userId}) to order ${orderId}`);
+
+      // Update the order in the order-service to persist customerId
+      try {
+        await axios.put(`http://localhost:5000/orders/update/${orderId}`, {
+          customerId: userId,
+        });
+        console.log(`Updated order ${orderId} with customerId ${userId} in order-service`);
+      } catch (updateErr) {
+        console.warn(`Failed to update order ${orderId} with customerId: ${updateErr.message}`);
+        // Proceed with cancellation but log the failure
+      }
+    }
+
+    // Verify the order belongs to the customer
+    console.log('User ID from token:', userId);
+    console.log('Order customerId:', order.customerId);
+    if (order.customerId.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: `You are not authorized to cancel this order (customerId: ${order.customerId}, userId: ${userId})`,
+      });
+    }
+
+    // Check if order is in a cancellable state
+    const cancellableStatuses = ['pending', 'confirmed', 'preparing', 'readyForPickup', 'driverAssigned', 'driverAccepted'];
+    if (!cancellableStatuses.includes(order.orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Order cannot be canceled in ${order.orderStatus} status`,
+      });
+    }
+
+    // Save cancellation record
+    const cancellation = new OrderCancellation({
+      orderId,
+      userId,
+      cancellationReason,
+      additionalComments: additionalComments || '',
+      acknowledgment,
+      orderStatusAtCancellation: order.orderStatus,
+    });
+    await cancellation.save();
+
+    // Update order status to 'cancelled'
+    let updatedOrder;
+    try {
+      const response = await axios.put(`http://localhost:5000/orders/update-order-status/${orderId}`, {
+        orderStatus: 'cancelled',
+      });
+      updatedOrder = response.data.updatedOrder;
+    } catch (apiErr) {
+      console.error('Error updating order status via order-service:', apiErr.message);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update order status via order-service',
+        details: apiErr.message,
+      });
+    }
+
+    // Handle driver if assigned
+    if (order.deliveryPersonId && ['driverAssigned', 'driverAccepted'].includes(order.orderStatus)) {
+      try {
+        const driver = await Driver.findOne({ userId: order.deliveryPersonId });
+        if (driver) {
+          // Update driver availability
+          await Driver.findOneAndUpdate(
+            { userId: order.deliveryPersonId },
+            {
+              $set: { isAvailable: true },
+              $inc: { currentOrders: -1 },
+            }
+          );
+
+          // Notify driver via email and SMS using notification service
+          const emailSubject = `Order Cancelled - Order ID: ${orderId}`;
+          const emailBody = `Hello ${order.deliveryPersonName},\n\nThe order with ID ${orderId} has been cancelled by the customer.\n\nReason: ${cancellationReason}\n\n${
+            additionalComments ? `Additional Comments: ${additionalComments}\n\n` : ''
+          }Please dispose of any picked-up items as you see fit or return to the restaurant if applicable.\n\nBest regards,\nYour Delivery App Team`;
+          const smsBody = `Order ${orderId} cancelled. Reason: ${cancellationReason}. ${
+            additionalComments ? `Comments: ${additionalComments}. ` : ''
+          }Dispose of items or return to restaurant.`;
+
+          try {
+            await axios.post('http://localhost:7000/api/notifications/send-notifications', {
+              email: {
+                to: driver.email,
+                subject: emailSubject,
+                text: emailBody,
+              },
+              sms: {
+                to: driver.phone,
+                body: smsBody,
+              },
+            });
+            console.log(`Notifications sent for order ${orderId} to ${driver.email} and ${driver.phone}`);
+          } catch (notificationErr) {
+            console.warn(`Failed to send notifications for order ${orderId} to ${driver.email} or ${driver.phone}: ${notificationErr.message}`);
+          }
+        }
+      } catch (driverErr) {
+        console.warn(`Error updating driver ${order.deliveryPersonId}: ${driverErr.message}`);
+      }
+    }
+
+    // Format order details for response
+    const orderDetails = {
+      orderNumber: order.orderId,
+      orderDateTime: order.orderDate,
+      restaurant: order.restaurantName,
+      deliveryAddress: `${order.deliveryLocationLatitude}, ${order.deliveryLocationLongitude}`,
+      assignedDeliveryPerson: order.deliveryPersonName
+        ? `${order.deliveryPersonName} (ID: ${order.deliveryPersonId})`
+        : 'Not assigned',
+      orderStatus: order.orderStatus,
+    };
+
+    res.status(200).json({
+      success: true,
+      message: 'Order cancelled successfully',
+      data: {
+        orderDetails,
+        cancellation: {
+          reason: cancellationReason,
+          additionalComments,
+          acknowledgment,
+        },
+      },
+    });
+  } catch (err) {
+    console.error('Error in /cancel-order:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while cancelling order',
       error: err.message,
     });
   }

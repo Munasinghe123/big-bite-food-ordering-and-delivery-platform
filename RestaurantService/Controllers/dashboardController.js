@@ -1,13 +1,17 @@
-const Restaurant = require('../Models/restaurantModel');
+const Restaurant = require('../Models/ResturantModel');
 const Menu = require('../Models/menuModel');
-//const Order = require('../../OrderService/Models/orderModel');
-const Order = require('../Models/orderModel');
+const Order = require('../Models/Order');
+
+console.log({ Restaurant, Menu, Order }); // check if they are imported properly
+
 
 const getDashboardStats = async (req, res) => {
   try {
     const restaurantCount = await Restaurant.countDocuments({});
     const menuCount = await Menu.countDocuments({});
     const orderCount = await Order.countDocuments({});
+
+    console.log("check 1");
 
     res.status(200).json({
       success: true,

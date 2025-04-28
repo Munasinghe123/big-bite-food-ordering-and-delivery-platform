@@ -1,3 +1,6 @@
+
+// Rathnayake R. M. S. D.
+
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
@@ -12,7 +15,27 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
 
-    customerId: {
+    orderDate: {
+        type: Date,
+        default: Date.now
+    },
+
+    customerUsername: {
+        type: String,
+        required: true
+    },
+
+    customerName: {
+        type: String,
+        required: true
+    },
+
+    customerPhone: {
+        type: String,
+        required: true
+    },
+
+    customerEmail: {
         type: String,
         required: true
     },
@@ -22,14 +45,29 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
 
+    restaurantName: {
+        type: String,
+        required: true
+    },
+
+    restaurantPhone: {
+        type: String,
+        required: true
+    },
+
+    restaurantLocationLatitude: { 
+        type: String, 
+        required: true 
+    },  
+    
+    restaurantLocationLongitude: { 
+        type: String, 
+        required: true 
+    },
+
     items: [
         {
             itemId: {
-                type: String,
-                required: true
-            },
-
-            itemName: {
                 type: String,
                 required: true
             },
@@ -47,15 +85,27 @@ const orderSchema = new mongoose.Schema({
         }
     ],
 
-    totalAmount: {
+    subtotal: {
         type: Number,
         required: true
     },
+    
+    deliveryLocationLatitude: { 
+        type: String, 
+        required: true 
+    },  
+    
+    deliveryLocationLongitude: { 
+        type: String, 
+        required: true 
+    },
 
-    paymentStatus: {
-        type: String,
-        enum: ['Pending', 'Paid', 'Failed'],
-        default: 'Pending'
+    deliveryCharge: {
+        type: Number,
+    },
+
+    totalAmount: {
+        type: Number,
     },
 
     paymentMethod: {
@@ -64,24 +114,34 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
 
-    orderStatus: {
+    paymentStatus: {
         type: String,
-        enum: ['Pending', 'Confirmed', 'Preparing', 'ReadyToDeliver', 'OrderAssigned', 'DeliverAccepted','OutForDelivery/DriverOnTheWay', 'Delivered', 'Cancelled'],
+        enum: ['Pending', 'Paid', 'Failed', 'PaymentDevided'],
         default: 'Pending'
     },
 
-    deliveryLocation: {
-        type: String,
-        required: true
+    orderStatus: {  
+        type: String,  
+        enum: [  
+            'pending', 'confirmed','preparing',  'readyForPickup',  
+            'driverAssigned', 'driverAccepted', 'outForDelivery',  'delivered',  
+            'cancelled'  
+        ],  
+        default: 'pending',  
+        required: true  
     },
+
 
     deliveryPersonId: {
         type: String,
     },
 
-    orderTime: {
-        type: Date,
-        default: Date.now
+    deliveryPersonName: {
+        type: String,
+    },
+
+    deliveryPersonPhone: {
+        type: String,
     },
 
     deliveredTime: {
@@ -91,7 +151,6 @@ const orderSchema = new mongoose.Schema({
     notes: {
         type: String
     }
-
 });
 
 // Generate orderId before saving
