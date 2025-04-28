@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Route Map</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <!-- Leaflet Routing Machine CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+    h1 {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+    #startButton {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      z-index: 1000;
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #startButton:hover {
+      background: #218838;
+    }
+    #startButton:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    .error {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px 20px;
+      border: 1px solid #f5c6cb;
+      border-radius: 5px;
+      z-index: 1000;
+    }
+    .warning {
+      position: absolute;
+      top: 100px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 224, 0.9);
+      color: #856404;
+      padding: 10px;
+      border: 1px solid #ffeeba;
+      border-radius: 5px;
+      font-size: 14px;
+      max-width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Navigation from Restaurant to Customer</h1>
+  <button id="startButton" disabled>Start Navigation</button>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <!-- Leaflet Routing Machine JS -->
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script>
+    // Function to validate coordinates
+    function isValidCoordinate(lat, lon) {
+      const validLat = !isNaN(lat) && lat >= -90 && lat <= 90;
+      const validLon = !isNaN(lon) && lon >= -180 && lon <= 180;
+      return validLat && validLon;
+    }
+
+    // Extract coordinates from URL query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const startLat = parseFloat(urlParams.get('driverLat')); // Restaurant (start)
+    const startLon = parseFloat(urlParams.get('driverLon'));
+    const endLat = parseFloat(urlParams.get('restaurantLat')); // Customer (end)
+    const endLon = parseFloat(urlParams.get('restaurantLon'));
+
+    // Debug coordinates
+    console.log('URL Parameters:', {
+      startLat: urlParams.get('driverLat'),
+      startLon: urlParams.get('driverLon'),
+      endLat: urlParams.get('restaurantLat'),
+      endLon: urlParams.get('restaurantLon'),
+    });
+    console.log('Parsed Coordinates:', {
+      startLat,
+      startLon,
+      endLat,
+      endLon,
+    });
+
+    // Validate coordinates
+    let errorMessage = '';
+    if (isNaN(startLat) || isNaN(startLon)) {
+      errorMessage += 'Restaurant (start) coordinates are invalid or missing. ';
+    } else if (!isValidCoordinate(startLat, startLon)) {
+      errorMessage += `Restaurant coordinates out of range: lat=${startLat}, lon=${startLon}. `;
+    }
+    if (isNaN(endLat) || isNaN(endLon)) {
+      errorMessage += 'Customer (end) coordinates are invalid or missing. ';
+    } else if (!isValidCoordinate(endLat, endLon)) {
+      errorMessage += `Customer coordinates out of range: lat=${endLat}, lon=${endLon}. `;
+    }
+
+    if (errorMessage) {
+      console.error('Coordinate validation failed:', errorMessage);
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error';
+      errorDiv.textContent = errorMessage || 'Invalid coordinates. Please ensure all location data is provided correctly.';
+      document.body.appendChild(errorDiv);
+    } else {
+      // Initialize the map, centered on start location (restaurant)
+      const map = L.map('map').setView([startLat, startLon], 13);
+
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      // Add markers for start (restaurant) and end (customer)
+      const startMarker = L.marker([startLat, startLon])
+        .addTo(map)
+        .bindPopup('Restaurant Location')
+        .openPopup();
+
+      const endMarker = L.marker([endLat, endLon])
+        .addTo(map)
+        .bindPopup('Customer Location');
+
+      // Add warning about OSRM demo server
+      const warningDiv = document.createElement('div');
+      warningDiv.className = 'warning';
+      warningDiv.innerHTML = 'Using OSRM demo server, which is not suitable for production. Consider setting up your own OSRM server or using a paid service like Mapbox or GraphHopper.';
+      document.body.appendChild(warningDiv);
+
+      // Enable the Start button
+      const startButton = document.getElementById('startButton');
+      startButton.disabled = false;
+
+      // Variable to hold the routing control
+      let routingControl = null;
+
+      // Add event listener for the Start button
+      startButton.addEventListener('click', () => {
+        if (routingControl) {
+          // If route is already displayed, remove it and show markers again
+          map.removeControl(routingControl);
+          routingControl = null;
+          startButton.textContent = 'Start Navigation';
+          // Re-add markers
+          startMarker.addTo(map).openPopup();
+          endMarker.addTo(map);
+        } else {
+          // Show the route
+          console.log('Calculating route from', [startLat, startLon], 'to', [endLat, endLon]);
+          routingControl = L.Routing.control({
+            waypoints: [
+              L.latLng(startLat, startLon),
+              L.latLng(endLat, endLon),
+            ],
+            routeWhileDragging: false,
+            show: true,
+            addWaypoints: false,
+            fitSelectedRoutes: true,
+            lineOptions: {
+              styles: [{ color: 'blue', weight: 4 }],
+            },
+            router: L.Routing.osrmv1({
+              serviceUrl: 'https://router.project-osrm.org/route/v1',
+            }),
+            createMarker: () => null, // Hide default waypoints markers
+          }).on('routingerror', (error) => {
+            console.error('Routing error:', error);
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = 'Failed to calculate route. The locations may be too far apart or unreachable by road. Please verify the coordinates.';
+            document.body.appendChild(errorDiv);
+            // Re-enable button and reset text
+            startButton.disabled = false;
+            startButton.textContent = 'Start Navigation';
+            // Remove error message after 5 seconds
+            setTimeout(() => errorDiv.remove(), 5000);
+            // Keep markers visible as a fallback
+            startMarker.addTo(map).openPopup();
+            endMarker.addTo(map);
+          }).on('routesfound', (e) => {
+            console.log('Route found:', e.routes);
+          }).addTo(map);
+          startButton.textContent = 'Clear Route';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
