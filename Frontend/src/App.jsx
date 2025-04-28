@@ -88,7 +88,7 @@ function App() {
                   <Route path="/order-details/:id" element={<OrderDetails />} />
                   <Route path="/order-history/:username" element={<OrderHistory />} />
                   <Route path="/track-order/:orderId" element={<TrackOrder />} />
-                  <Route path="/CancelOrder" element={<CancelOrder/>} />
+                  <Route path="/cancel-order/:id" element={<CancelOrder/>} />
                   </>
                 )
               }

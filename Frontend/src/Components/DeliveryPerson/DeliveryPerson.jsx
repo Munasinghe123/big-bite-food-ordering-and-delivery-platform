@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../Context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import './DeliveryPerson.css'; // Adjust the path based on your file structure
+import '../DeliveryPerson/DeliveryPerson.css';
 
 // Status constants to match backend's validStatuses array
 const ORDER_STATUS = {
@@ -307,40 +307,38 @@ const DeliveryPerson = () => {
 
   if (!user || user.role !== 'DeliveryPerson') {
     return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+      <div className="container">
+        <h1>Access Denied</h1>
         <p>You must be logged in as a delivery person to view this page.</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Welcome, {user.name}</h1>
-
-      <div className="bg-white p-4 rounded shadow mb-6">
-        <h2 className="text-xl font-semibold mb-2">Update Your Location</h2>
+    <div className="container">
+      <div className="delivery-animation">
+        <div className="delivery-boy"></div>
+      </div>
+      <div className="bg-white">
+        <h2 className="text-xl">Update Your Location</h2>
         <div className="mb-4">
-          <button
-            onClick={fetchCurrentLocation}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-2"
-          >
-            Get Current Location
-          </button>
+          <button onClick={fetchCurrentLocation}>Get Current Location</button>
           {location && (
             <p className="mt-2">
-              Current Location: Lat: {location.lat.toFixed(6)}, Long: {location.lng.toFixed(6)}
+              Current Location: Lat: {location.lat.toFixed(6)}, Long:{' '}
+              {location.lng.toFixed(6)}
             </p>
           )}
           {driverLocation && (
             <p className="mt-2">
-              Confirmed Location: Lat: {driverLocation.latitude.toFixed(6)}, Long: {driverLocation.longitude.toFixed(6)}
+              Confirmed Location: Lat: {driverLocation.latitude.toFixed(6)}, Long:{' '}
+              {driverLocation.longitude.toFixed(6)}
             </p>
           )}
           <button
             onClick={updateLocation}
             disabled={isUpdatingLocation || !location}
-            className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
+            className={isUpdatingLocation || !location ? 'disabled' : ''}
           >
             {isUpdatingLocation ? 'Updating...' : 'Confirm Location'}
           </button>
@@ -348,29 +346,29 @@ const DeliveryPerson = () => {
       </div>
 
       {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
+        <div className="bg-red-100">
           <p>{error}</p>
         </div>
       )}
 
       {loading ? (
-        <div className="text-center py-8">
+        <div className="text-center">
           <p>Loading orders...</p>
         </div>
       ) : (
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-xl font-semibold mb-4">Your Orders</h2>
+        <div className="bg-white rounded shadow p-4">
+          <h2 className="text-xl">Your Orders</h2>
 
           {orders.length > 0 ? (
-            <div className="space-y-6">
+            <div>
               {orders
                 .filter((order) => order.status !== ORDER_STATUS.DELIVERED) // Filter out Delivered orders
                 .map((order) => (
-                  <div key={order.orderId} className="border rounded-lg p-4 shadow-sm">
+                  <div key={order.orderId} className="order-card">
                     {/* Order Overview */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="grid mb-4">
                       <div>
-                        <h3 className="text-lg font-semibold mb-2">Order Details</h3>
+                        <h3 className="text-lg">Order Details</h3>
                         <p>
                           <strong>Order ID:</strong> {order.orderId}
                         </p>
@@ -379,19 +377,21 @@ const DeliveryPerson = () => {
                           {new Date(order.orderDate).toLocaleString()}
                         </p>
                         <p>
-                          <strong>Total Amount:</strong> Rs. {order.totalAmount?.toFixed(2)}
+                          <strong>Total Amount:</strong> Rs.{' '}
+                          {order.totalAmount?.toFixed(2)}
                         </p>
                         <p>
                           <strong>Status:</strong>
                           <span
-                            className={`ml-2 px-2 py-1 rounded text-xs ${
+                            className={`status-badge ${
                               order.status === ORDER_STATUS.DRIVER_ASSIGNED
-                                ? 'bg-yellow-100 text-yellow-800'
+                                ? 'bg-yellow-100'
                                 : order.status === ORDER_STATUS.DRIVER_ACCEPTED
-                                ? 'bg-blue-100 text-blue-800'
-                                : order.status === ORDER_STATUS.OUT_FOR_DELIVERY
-                                ? 'bg-purple-100 text-purple-800'
-                                : 'bg-gray-100 text-gray-800'
+                                ? 'bg-blue-100'
+                                : order.status ===
+                                  ORDER_STATUS.OUT_FOR_DELIVERY
+                                ? 'bg-purple-100'
+                                : 'bg-gray-100'
                             }`}
                           >
                             {order.status}
@@ -399,7 +399,7 @@ const DeliveryPerson = () => {
                         </p>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold mb-2">Customer Details</h3>
+                        <h3 className="text-lg">Customer Details</h3>
                         <p>
                           <strong>Name:</strong> {order.customer.name}
                         </p>
@@ -411,7 +411,7 @@ const DeliveryPerson = () => {
 
                     {/* Restaurant Details */}
                     <div className="mb-4">
-                      <h3 className="text-lg font-semibold mb-2">Restaurant Details</h3>
+                      <h3 className="text-lg">Restaurant Details</h3>
                       <p>
                         <strong>Name:</strong> {order.restaurant.name}
                       </p>
@@ -424,7 +424,7 @@ const DeliveryPerson = () => {
 
                     {/* Delivery Location */}
                     <div className="mb-4">
-                      <h3 className="text-lg font-semibold mb-2">Delivery Location</h3>
+                      <h3 className="text-lg">Delivery Location</h3>
                       <p>
                         <strong>Address:</strong>{' '}
                         {orderAddresses[order.orderId]?.delivery ||
@@ -434,11 +434,12 @@ const DeliveryPerson = () => {
 
                     {/* Items Ordered */}
                     <div className="mb-4">
-                      <h3 className="text-lg font-semibold mb-2">Items Ordered</h3>
-                      <ul className="list-disc pl-5">
+                      <h3 className="text-lg">Items Ordered</h3>
+                      <ul className="list-disc">
                         {order.items?.map((item, index) => (
                           <li key={index}>
-                            {item.quantity}x {item.itemId} - Rs. {(item.price * item.quantity).toFixed(2)}
+                            {item.quantity}x {item.itemId} - Rs.{' '}
+                            {(item.price * item.quantity).toFixed(2)}
                           </li>
                         ))}
                       </ul>
@@ -447,7 +448,7 @@ const DeliveryPerson = () => {
                     {/* Delivery Person Details (if available) */}
                     {order.deliveryPerson && (
                       <div className="mb-4">
-                        <h3 className="text-lg font-semibold mb-2">Assigned Delivery Person</h3>
+                        <h3 className="text-lg">Assigned Delivery Person</h3>
                         <p>
                           <strong>Name:</strong> {order.deliveryPerson.name}
                         </p>
@@ -458,12 +459,16 @@ const DeliveryPerson = () => {
                     )}
 
                     {/* Action Buttons */}
-                    <div className="flex justify-end space-x-2">
+                    <div className="flex">
                       {order.status === ORDER_STATUS.DRIVER_ASSIGNED && (
                         <button
                           onClick={() => acceptOrder(order)}
                           disabled={isAcceptingOrder || !driverLocation}
-                          className="px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white disabled:bg-green-300"
+                          className={
+                            isAcceptingOrder || !driverLocation
+                              ? 'disabled'
+                              : ''
+                          }
                         >
                           {isAcceptingOrder ? 'Accepting...' : 'Accept Order'}
                         </button>
@@ -476,7 +481,6 @@ const DeliveryPerson = () => {
                               state: { order },
                             })
                           }
-                          className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white"
                         >
                           View Details
                         </button>

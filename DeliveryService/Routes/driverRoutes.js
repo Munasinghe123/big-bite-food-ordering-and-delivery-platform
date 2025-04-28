@@ -70,39 +70,56 @@ router.put('/update-location', verifyToken, async (req, res) => {
       return res.status(403).json({ message: 'Only DeliveryPerson users can update driver location.' });
     }
 
-    let user;
+    let userData;
     try {
-      user = await fetchUserFromAuth(userId, token);
+      userData = await fetchUserFromAuth(userId, token);
     } catch (err) {
-      console.warn(`Failed to fetch user ${userId} from auth service: ${err.message}`);
-      user = { id: userId, name: req.user.name, email: req.user.email, phone: '', role: req.user.role };
+      console.warn(`Failed to fetch user details: ${err.message}`);
+      // Fallback to using the data from the token
+      userData = {
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email,
+        phone: req.user.phone || '', // Use empty string if not available
+        role: req.user.role
+      };
     }
 
     let driver = await Driver.findOne({ userId });
     if (!driver) {
       driver = new Driver({
         userId,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone, // Will be empty string if not available
+        role: userData.role,
         currentLocation: { latitude, longitude },
         isAvailable: true,
       });
     } else {
       driver.currentLocation.latitude = latitude;
       driver.currentLocation.longitude = longitude;
-      driver.name = user.name;
-      driver.email = user.email;
-      driver.phone = user.phone;
-      driver.role = user.role;
+      // Only update fields if we have new data
+      driver.name = userData.name || driver.name;
+      driver.email = userData.email || driver.email;
+      driver.phone = userData.phone || driver.phone;
+      driver.role = userData.role;
     }
+
     await driver.save();
 
-    res.status(200).json({ message: 'Driver location updated successfully.', driver });
+    res.status(200).json({ 
+      success: true,
+      message: 'Driver location updated successfully.',
+      driver 
+    });
   } catch (err) {
-    console.error('Error updating driver location:', err.message);
-    res.status(500).json({ error: 'Error updating driver location.', details: err.message });
+    console.error('Error updating driver location:', err);
+    res.status(500).json({ 
+      success: false,
+      error: 'Error updating driver location',
+      details: err.message
+    });
   }
 });
 
@@ -900,10 +917,11 @@ router.post('/sendEmail', verifyToken, async (req, res) => {
 });
 
 // Cancel an order
-router.post('/cancel-order', verifyToken, async (req, res) => {
+router.post('/cancel-order/:id', verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const userRole = req.user.role;
+    const orderId = req.params.id; // Get order ID from URL parameter
 
     if (userRole !== 'Customer') {
       return res.status(403).json({
@@ -913,7 +931,6 @@ router.post('/cancel-order', verifyToken, async (req, res) => {
     }
 
     const {
-      orderId,
       cancellationReason,
       additionalComments,
       acknowledgment,
@@ -1042,14 +1059,11 @@ router.post('/cancel-order', verifyToken, async (req, res) => {
             }
           );
 
-          // Notify driver via email and SMS using notification service
+          // Notify driver via email only using AdminNotificationService
           const emailSubject = `Order Cancelled - Order ID: ${orderId}`;
           const emailBody = `Hello ${order.deliveryPersonName},\n\nThe order with ID ${orderId} has been cancelled by the customer.\n\nReason: ${cancellationReason}\n\n${
             additionalComments ? `Additional Comments: ${additionalComments}\n\n` : ''
           }Please dispose of any picked-up items as you see fit or return to the restaurant if applicable.\n\nBest regards,\nYour Delivery App Team`;
-          const smsBody = `Order ${orderId} cancelled. Reason: ${cancellationReason}. ${
-            additionalComments ? `Comments: ${additionalComments}. ` : ''
-          }Dispose of items or return to restaurant.`;
 
           try {
             await axios.post('http://localhost:7000/api/notifications/send-notifications', {
@@ -1057,15 +1071,11 @@ router.post('/cancel-order', verifyToken, async (req, res) => {
                 to: driver.email,
                 subject: emailSubject,
                 text: emailBody,
-              },
-              sms: {
-                to: driver.phone,
-                body: smsBody,
-              },
+              }
             });
-            console.log(`Notifications sent for order ${orderId} to ${driver.email} and ${driver.phone}`);
+            console.log(`Email notification sent for order ${orderId} to ${driver.email}`);
           } catch (notificationErr) {
-            console.warn(`Failed to send notifications for order ${orderId} to ${driver.email} or ${driver.phone}: ${notificationErr.message}`);
+            console.warn(`Failed to send email notification for order ${orderId} to ${driver.email}: ${notificationErr.message}`);
           }
         }
       } catch (driverErr) {
