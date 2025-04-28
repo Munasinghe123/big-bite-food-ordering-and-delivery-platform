@@ -1,21 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { assets } from '../../../assets/assets';
 import './Sidebar.css';
 
+import { AuthContext } from '../../../context/AuthContext';
+
 const Sidebar = () => {
   const url = 'http://localhost:7001';
-  const [list, setList] = useState([]);
+  const [restaurant, setRestaurant] = useState(null);
+  const  { user } = useContext(AuthContext);
 
-  const fetchAllRestaurants = async () => {
+  const fetchRestaurantProfile = async () => {
     try {
-      const response = await axios.get(`${url}/api/resturants/list`);
+      const restaurantId = localStorage.getItem('restaurantId');
+  
+      if (!restaurantId) {
+        toast.error('No restaurant ID found. Please login again.');
+        return;
+      }
+  
+      const response = await axios.get(`${url}/api/resturants/list/${user.restaurantId}`);
       if (response.data.success) {
-        setList(response.data.data);
+        setRestaurant(response.data.data);
       } else {
-        toast.error('Error fetching restaurants');
+        toast.error('Error fetching restaurant profile');
       }
     } catch (error) {
       console.error(error);
@@ -24,7 +34,7 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
-    fetchAllRestaurants();
+    fetchRestaurantProfile();
   }, []);
 
   return (
@@ -47,17 +57,15 @@ const Sidebar = () => {
           <p>Order History</p>
         </NavLink>
 
-        {list.map((item) => (
-          <NavLink to={`/updaterestaurant/${item._id}`} className='sidebar-option' key={item._id}>
+        {restaurant && (
+          <NavLink to={`/updaterestaurant/${user._id}`} className='sidebar-option'>
             <img className='profile-icon' src={assets.profile} alt='Profile' />
-            <div>
-              <p>Profile</p>
-            </div>
+            <p>Profile</p>
           </NavLink>
-        ))}
+        )}
       </div>
     </div>
   );
 };
 
-export default Sidebar;
+export default Sidebar; 
