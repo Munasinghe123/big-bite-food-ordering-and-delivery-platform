@@ -14,6 +14,7 @@ function ResturantRegistration() {
   const [role] = useState("ResturantAdmin");
   const [adminPhoto, setAdminPhoto] = useState(null);
   const [phone, setPhone] = useState('');
+  const [restaurantPhone, setRestaurantPhone] = useState('');
   const [paymentStatus] = useState("Pending");
   const [error, setError] = useState(null);
 
@@ -44,6 +45,7 @@ function ResturantRegistration() {
       formData.append('paymentStatus', paymentStatus);
       formData.append('lat', lat);
       formData.append('lng', lng);
+      formData.append('restaurantPhone', restaurantPhone);
 
       if (resturantPhoto) {
         formData.append('resturantPhoto', resturantPhoto);
@@ -65,10 +67,12 @@ function ResturantRegistration() {
       });
 
       const registeredResturant = response.data.registeredResturant;
+      
+      console.log("Registered Resturant", registeredResturant);
 
       
       const stripeRes = await axios.post('http://localhost:7001/stripe/create-resturant-checkout-session', {
-        resturantName: registeredResturant.resturantName,
+        restaurantName: registeredResturant.restaurantName,
       });
 
       window.location.href = stripeRes.data.url;
@@ -96,6 +100,9 @@ function ResturantRegistration() {
 
         <label>Location</label>
         <input type='text' value={location} onChange={(e) => setLocation(e.target.value)} required />
+
+        <label>Restaurant Phone</label>
+        <input type='text' value={restaurantPhone} onChange={(e) => setRestaurantPhone(e.target.value)} required />
 
         <h1>Register the Restaurant Admin</h1>
 

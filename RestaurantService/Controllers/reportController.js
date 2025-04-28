@@ -3,9 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
-const Order = require('../Models/orderModel');
+const Order = require('../../OrderService/models/Order');
 const Menu = require('../Models/menuModel');
-//const Order = require('../../OrderService/Models/orderModel');
 
 const generateReport = async (req, res) => {
   try {

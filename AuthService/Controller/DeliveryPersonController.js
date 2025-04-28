@@ -35,7 +35,28 @@ const registerDeliveryPerson = async (req, res) => {
              paymentStatus: "Pending"
         });
 
-        await newDeliveryPerson.save();
+        const savedDeliveryPerson = await newDeliveryPerson.save();
+
+          // Format phone number
+          let deliveryPersonPhone = savedDeliveryPerson.phone;
+          if (deliveryPersonPhone.startsWith("0")) {
+              deliveryPersonPhone = deliveryPersonPhone.replace(/^0/, "+94");
+          }
+  
+          console.log("delivery person phone:", deliveryPersonPhone);
+ 
+         await axios.post('http://admin-notification-service:7000/api/notifications/send-notifications', {
+             email: {
+                 to: savedDeliveryPerson.email,
+                 subject: 'Your rergistration request has been recieved.',
+                 text: `Dear ${savedDeliveryPerson.name},\n\nYour registration request have been recieved.We will
+                  notify you in a while.\n\nThank you!`
+             },
+             sms: {
+                 to:deliveryPersonPhone,
+                 body: `Dear "${savedDeliveryPerson.name}", your resgistration request have been recieved.`
+             }
+         });
 
         res.status(201).json({message:"Delivery person registered successfully", newDeliveryPerson});
 
@@ -135,7 +156,24 @@ const updatePaymentStatus = async (req, res) => {
     }
 };
 
+const getRejectedDelivery = async(req,res)=>{
+
+    try{
+
+        const rejected = await userModel.find({status:"rejected"});
+        if(!rejected){
+            res.status(400).json({message:"no rejected delivery persons",rejected});
+        }
+
+        res.status(200).json({message:"rejected delevery persons",rejected});
+    }catch(err){
+        console.error("Error updating payment status:", err.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+
+}
 
 
 
-module.exports = {registerDeliveryPerson,getPendingDeliveryPerson,approveDeliveryPerson,updatePaymentStatus}
+
+module.exports = {registerDeliveryPerson,getPendingDeliveryPerson,approveDeliveryPerson,updatePaymentStatus,getRejectedDelivery}

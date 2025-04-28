@@ -5,8 +5,8 @@ const axios = require('axios');
 
 const registerResturant = async (req, res) => {
     try {
-        const { name, location, lat, lng, adminPassword,adminEmail,fullName,adminName,role,phone } = req.body;
-        const resturantPhoto = req.files['resturantPhoto'] ? req.files['resturantPhoto'][0].filename : null;
+        const { name, location, restaurantPhone, lat, lng, adminPassword,adminEmail,fullName,adminName,role,phone } = req.body;
+        const restaurantPhoto = req.files['resturantPhoto'] ? req.files['resturantPhoto'][0].filename : null;
         const adminPhoto = req.files['adminPhoto'] ? req.files['adminPhoto'][0].filename : null;
 
         console.log(req.body);
@@ -17,13 +17,13 @@ const registerResturant = async (req, res) => {
             return res.status(400).json({message:"User name already exixts"});
         }
 
-        if (!name || !location || !resturantPhoto || !lat || !lng  ||
+        if (!name || !location || !restaurantPhoto || !lat || !lng  || !restaurantPhone ||
             !adminPassword||!adminEmail||!adminName||!role||!adminPhoto || !phone) {
             console.log("Provide all the required fields");
             return res.status(404).json({ message: "Provide all the required fields" });
         }
 
-        const existingName = await resturantModel.findOne({ resturantName: name, resturantLocation: location });
+        const existingName = await resturantModel.findOne({ restaurantName: name, restaurantLocation: location });
         if (existingName) {
             console.log("Resturant already exists!");
             return res.status(409).json({ message: "Resturant already exists!" });
@@ -48,16 +48,40 @@ const registerResturant = async (req, res) => {
 
         //saving the resturant
         const newResturant = new resturantModel({
-            resturantName: name,
-            resturantLocation: location,
-            resturantPhoto,
+            restaurantName: name,
+            restaurantLocation: location,
+            restaurantPhoto,
             paymentStatus: "Pending",
+            restaurantPhone,
             lat,
             lng,
             admin:savedResturantAdmin._id,
         });
 
         const registeredResturant = await newResturant.save();
+
+    
+        const resturantName = registeredResturant.resturantName;
+
+        // Format phone
+        let adminPhone = savedResturantAdmin.phone;
+        if (adminPhone.startsWith("0")) {
+            adminPhone = adminPhone.replace(/^0/, "+94");
+        }
+
+        console.log("delivery person phone:", adminPhone);
+
+        await axios.post('http://admin-notification-service:7000/api/notifications/send-notifications', {
+            email: {
+                to: savedResturantAdmin.email,
+                subject: 'Your rergistration request has been recieved.',
+                text: `Dear ${savedResturantAdmin.name},\n\nYour ${resturantName} registration request have been recieved.We will notify you in a while.\n\nThank you!`
+            },
+            sms: {
+                to: adminPhone,
+                body: `Dear "${savedResturantAdmin.name}", your registration request have been recieved.`
+            }
+        });
 
         res.status(200).json({ message: "Resturant registered successfully", registeredResturant,savedResturantAdmin });
     } catch (err) {
@@ -148,10 +172,10 @@ const getRejectedResturant = async(req,res)=>{
 
 const updateResturantPaymentStatus = async (req, res) => {
     try {
-        const resturantName = req.params.id;
+        const restaurantName = req.params.id;
 
         const resturant = await resturantModel.findOneAndUpdate(
-            {resturantName},
+            {restaurantName},
             { paymentStatus: "Paid" },
             { new: true }
         );
@@ -168,6 +192,30 @@ const updateResturantPaymentStatus = async (req, res) => {
     }
 };
 
+const getAllRestaurants = async (req, res) => {
+    try {
+      const restaurants = await resturantModel.find({});
+      res.status(200).json({ success: true, data: restaurants });
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Error fetching restaurants', error: error.message });
+    }
+  };
+  
+  const getRestaurantById = async (req, res) => {
+    try {
+      const restaurant = await resturantModel.findById(req.params.id);
+      if (!restaurant) {
+        return res.status(404).json({ message: 'Restaurant not found' });
+      }
+      res.status(200).json({ success: true, data: restaurant });
+    } catch (error) {
+      res.status(500).json({ success: false, message: 'Server error' });
+    }
+  };
 
-module.exports = { registerResturant, approveResturant,getPendingResturant,getRejectedResturant,updateResturantPaymentStatus };
+  
+  
+
+
+module.exports = { registerResturant, approveResturant,getPendingResturant,getRejectedResturant,updateResturantPaymentStatus, getRestaurantById, getAllRestaurants };
 

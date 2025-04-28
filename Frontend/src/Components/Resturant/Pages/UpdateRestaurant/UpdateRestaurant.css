@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #fcfcfc;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+hr {
+    border: none;
+    height: 1px;
+    background-color: #a9a9a9;
+}
+
+.app-content {
+    display: flex;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cursor {
+    cursor: pointer;
+}
+
+.layout4 {
+    display: flex;
+}
+
+.bar4 {
+    margin-top: 120px;
+    width: 250px;
+    border-top: 2px solid darkgray;
+}
+
+.update1 {
+    margin-top: 120px;
+    width: 70%;
+    margin-left: max(5vw, 25px);
+    color: #6d6d6d;
+    font-size: 16px;
+}
+
+.update1 form {
+    gap: 20px;
+    width: 500px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding: 20px;
+    margin-left: 250px;
+}
+
+.update-img-upload1 img {
+    width: 120px;
+    height: 120px;
+    border: 1px solid #a9a9a9;
+    border-radius: 10px;
+    background-color: #ddd7d7;
+}
+
+.update-inputs {
+    width: max(60%, 280px);
+}
+
+.update-inputs input {
+    padding: 10px;
+}
+
+.update-status select {
+    max-width: 180px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.update-btn1 {
+    max-width: 220px;
+    border: none;
+    padding: 10px;
+    background-color: green;
+    color: white;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+/* Large desktop (1200px and up) */
+@media (min-width: 1200px) {
+    .update1 form {
+        width: 500px;
+        margin-left: 300px;
+    }
+
+    .update-inputs {
+        width: max(70%, 320px);
+    }
+}
+
+/* Small desktop (992px to 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .update1 form {
+        width: 500px;
+        margin-left: 200px;
+    }
+
+    .bar4 {
+        width: 200px;
+    }
+}
+
+/* Tablet (768px to 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .layout4 {
+        flex-direction: column;
+    }
+
+    .bar4 {
+        width: 100%;
+        margin-top: 80px;
+        border-top: none;
+        border-left: 2px solid darkgray;
+        height: 50px;
+    }
+
+    .update1 {
+        width: 90%;
+        margin: 40px auto 0;
+    }
+
+    .update1 form {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .update-inputs {
+        width: 100%;
+    }
+}
