@@ -35,7 +35,28 @@ const registerDeliveryPerson = async (req, res) => {
              paymentStatus: "Pending"
         });
 
-        await newDeliveryPerson.save();
+        const savedDeliveryPerson = await newDeliveryPerson.save();
+
+          // Format phone number
+          let deliveryPersonPhone = savedDeliveryPerson.phone;
+          if (deliveryPersonPhone.startsWith("0")) {
+              deliveryPersonPhone = deliveryPersonPhone.replace(/^0/, "+94");
+          }
+  
+          console.log("delivery person phone:", deliveryPersonPhone);
+ 
+         await axios.post('http://admin-notification-service:7000/api/notifications/send-notifications', {
+             email: {
+                 to: savedDeliveryPerson.email,
+                 subject: 'Your rergistration request has been recieved.',
+                 text: `Dear ${savedDeliveryPerson.name},\n\nYour registration request have been recieved.We will
+                  notify you in a while.\n\nThank you!`
+             },
+             sms: {
+                 to:deliveryPersonPhone,
+                 body: `Dear "${savedDeliveryPerson.name}", your resgistration request have been recieved.`
+             }
+         });
 
         res.status(201).json({message:"Delivery person registered successfully", newDeliveryPerson});
 

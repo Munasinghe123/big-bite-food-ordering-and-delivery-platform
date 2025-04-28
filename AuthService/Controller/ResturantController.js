@@ -59,6 +59,29 @@ const registerResturant = async (req, res) => {
 
         const registeredResturant = await newResturant.save();
 
+    
+        const resturantName = registeredResturant.resturantName;
+
+        // Format phone
+        let adminPhone = savedResturantAdmin.phone;
+        if (adminPhone.startsWith("0")) {
+            adminPhone = adminPhone.replace(/^0/, "+94");
+        }
+
+        console.log("delivery person phone:", adminPhone);
+
+        await axios.post('http://admin-notification-service:7000/api/notifications/send-notifications', {
+            email: {
+                to: savedResturantAdmin.email,
+                subject: 'Your rergistration request has been recieved.',
+                text: `Dear ${savedResturantAdmin.name},\n\nYour ${resturantName} registration request have been recieved.We will notify you in a while.\n\nThank you!`
+            },
+            sms: {
+                to: adminPhone,
+                body: `Dear "${savedResturantAdmin.name}", your registration request have been recieved.`
+            }
+        });
+
         res.status(200).json({ message: "Resturant registered successfully", registeredResturant,savedResturantAdmin });
     } catch (err) {
         res.status(500).json({ message: "Resturant registration error", error: err.message });
