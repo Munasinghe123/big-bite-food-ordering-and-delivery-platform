@@ -9,7 +9,7 @@ import Sidebar from '../../Sidebar/Sidebar';
 const UpdateRestaurant = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const url = 'http://localhost:5004';
+    const url = 'http://localhost:7001';
 
     const [data, setData] = useState({
         restaurantName: '',
@@ -25,7 +25,7 @@ const UpdateRestaurant = () => {
     useEffect(() => {
         const fetchRestaurant = async () => {
             try {
-                const res = await axios.get(`${url}/api/restaurant/list/${id}`);
+                const res = await axios.get(`${url}/api/resturants/list/${id}`);
                 if (res.data.success && res.data.data) {
                     const { restaurantName, restaurantLocation, lat, lng, status, restaurantPhoto } = res.data.data;
 
@@ -69,7 +69,7 @@ const UpdateRestaurant = () => {
         }
 
         try {
-            const res = await axios.put(`${url}/api/restaurant/update/${id}`, formData, {
+            const res = await axios.put(`${url}/api/resturants/updateRestaurant/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -77,7 +77,7 @@ const UpdateRestaurant = () => {
 
             if (res.data.success) {
                 toast.success('Restaurant updated successfully');
-                navigate('/restaurantlists');
+                navigate('/ResturantAdmin');
             } else {
                 toast.error('Failed to update restaurant');
             }
