@@ -71,7 +71,7 @@ const registerResturant = async (req, res) => {
 
         console.log("delivery person phone:", adminPhone);
 
-        await axios.post('http://admin-notification-service:7000/api/notifications/send-notifications', {
+        await axios.post('http://localhost:7000/api/notifications/send-notifications', {
             email: {
                 to: savedResturantAdmin.email,
                 subject: 'Your rergistration request has been recieved.',
@@ -117,7 +117,7 @@ const approveResturant = async (req, res) => {
             adminPhone = adminPhone.replace(/^0/, "+94");
         }
         
-        await axios.post('http://admin-notification-service:7000/api/notifications/send-notifications', {
+        await axios.post('http://localhost:7000/api/notifications/send-notifications', {
             email: {
                 to: updatedResturant.admin.email,
                 subject: `Your registration has been ${status}`,
