@@ -9,7 +9,7 @@ function OrderDetails() {
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/orders/view/${id}`)
+    axios.get(`http://localhost:5000/orders/view/${id}` ,{withCredentials: true})
       .then(res => setOrder(res.data))
       .catch(err => console.error("Failed to load order:", err));
   }, [id]);
