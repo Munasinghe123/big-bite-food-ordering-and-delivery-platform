@@ -64,7 +64,7 @@ function Customer() {
             .catch(err => console.error(err));
             
 
-        axios.get('http://localhost:7001/api/resturants/list')
+        axios.get('http://localhost:7001/api/resturants/list',{withCredentials: true})
             .then(res => {
                 if (res.data.success) {
                     const openedRestaurants = res.data.data.filter(r => r.openStatus === 'open');
