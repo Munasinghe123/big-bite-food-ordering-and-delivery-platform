@@ -18,6 +18,7 @@ const DriverSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
+    required: false,
     default: '',
   },
   role: {

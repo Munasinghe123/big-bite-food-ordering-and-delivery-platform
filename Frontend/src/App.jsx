@@ -90,7 +90,7 @@ function App() {
                   <Route path="/order-details/:id" element={<OrderDetails />} />
                   <Route path="/order-history/:username" element={<OrderHistory />} />
                   <Route path="/track-order/:orderId" element={<TrackOrder />} />
-                  <Route path="/CancelOrder" element={<CancelOrder/>} />
+                  <Route path="/cancel-order/:id" element={<CancelOrder/>} />
                   </>
                 )
               }
@@ -112,7 +112,7 @@ function App() {
                 user.role === "DeliveryPerson" && (
                   <>
                   <Route path="/DeliveryPerson" element={<DeliveryPerson />} />
-                  <Route path="/OrderDetails" element = {<DOrderDetails/>}/>
+                  <Route path="/DOrderDetails" element = {<DOrderDetails/>}/>
                   <Route path="/Deliveryconfirm" element = {<Deliveryconfirm/>}/>
                   <Route path="/DeliveryDashboard" element = {<DeliveryDashboard/>}/>
                   </>
