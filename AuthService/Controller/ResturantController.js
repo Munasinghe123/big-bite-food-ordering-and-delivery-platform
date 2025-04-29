@@ -203,7 +203,8 @@ const getAllRestaurants = async (req, res) => {
   
   const getRestaurantById = async (req, res) => {
     try {
-      const restaurant = await resturantModel.findById(req.params.id);
+    //   const restaurant = await resturantModel.findById(req.params.id);
+    const restaurant = await resturantModel.findOne({ admin: req.params.id });
       if (!restaurant) {
         return res.status(404).json({ message: 'Restaurant not found' });
       }
@@ -229,7 +230,7 @@ const getAllRestaurants = async (req, res) => {
         restaurant.lng = lng || restaurant.lng;
         restaurant.status = status || restaurant.status;
   
-        if (req.files && req.files['restaurantPhoto']) {
+        if (req.files && req.files['resturantPhoto']) {
             const oldImage = restaurant.restaurantPhoto;
             restaurant.restaurantPhoto = req.files['resturantPhoto'][0].filename; 
         
@@ -246,7 +247,6 @@ const getAllRestaurants = async (req, res) => {
     }
 };
 
-  
   
 
 

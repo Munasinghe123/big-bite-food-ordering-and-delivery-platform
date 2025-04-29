@@ -17,6 +17,6 @@ router.get('/list', getAllRestaurants);
 router.get('/list/:id', getRestaurantById);
 
 // Restaurant admin status
-router.put('/updateRestaurant/:id', verifyToken, verifyRole("ResturantAdmin"), upload, updateRestaurant);
+router.put('/updateRestaurant/:id', upload, updateRestaurant);
 
 module.exports = router;

@@ -16,7 +16,7 @@ const UpdateRestaurant = () => {
         restaurantLocation: '',
         lat: '',
         lng: '',
-        status: ''
+        openStatus: ''
     });
 
     const [currentImage, setCurrentImage] = useState('');
@@ -25,16 +25,16 @@ const UpdateRestaurant = () => {
     useEffect(() => {
         const fetchRestaurant = async () => {
             try {
-                const res = await axios.get(`${url}/api/resturants/list/${id}`);
+                const res = await axios.get(`${url}/api/resturants/list/${id}`, { withCredentials: true });
                 if (res.data.success && res.data.data) {
-                    const { restaurantName, restaurantLocation, lat, lng, status, restaurantPhoto } = res.data.data;
-
+                    const { restaurantName, restaurantLocation, lat, lng, openStatus, restaurantPhoto } = res.data.data;
+                    console.log("resturant data",res.data.data);
                     setData({
                         restaurantName: restaurantName || '',
                         restaurantLocation: restaurantLocation || '',
                         lat: lat || '',
                         lng: lng || '',
-                        status: status || ''
+                        openStatus: openStatus || ''
                     });
                     setCurrentImage(restaurantPhoto || '');
                 } else {
@@ -62,7 +62,7 @@ const UpdateRestaurant = () => {
         formData.append('restaurantLocation', data.restaurantLocation);
         formData.append('lat', data.lat);
         formData.append('lng', data.lng);
-        formData.append('status', data.status);
+        formData.append('openStatus', data.openStatus);
 
         if (newImage) {
             formData.append('restaurantPhoto', newImage);
@@ -73,6 +73,7 @@ const UpdateRestaurant = () => {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
+                withCredentials: true
             });
 
             if (res.data.success) {
@@ -100,7 +101,7 @@ const UpdateRestaurant = () => {
                         <p>Upload Image</p>
                         <label htmlFor='image'>
                             <img
-                                src={newImage ? URL.createObjectURL(newImage) : currentImage ? `${url}/images/${currentImage}` : assets.upload_icon}
+                                src={newImage ? URL.createObjectURL(newImage) : currentImage ? `${url}/uploads/${currentImage}` : assets.upload_icon}
                                 alt="Restaurant" />
                         </label>
                         <input
@@ -153,10 +154,10 @@ const UpdateRestaurant = () => {
 
                     <p>Restaurant Status</p>
                     <div className='update-status flex-col'>
-                        <select name='status' value={data.status || ''} onChange={onChangeHandler} required>
+                        <select name='openStatus' value={data.openStatus || ''} onChange={onChangeHandler} required>
                             <option value=''>Select Status</option>
-                            <option value='Opened'>Opened</option>
-                            <option value='Closed'>Closed</option>
+                            <option value='open'>Open</option>
+                            <option value='closed'>Closed</option>
                         </select>
                     </div>
 

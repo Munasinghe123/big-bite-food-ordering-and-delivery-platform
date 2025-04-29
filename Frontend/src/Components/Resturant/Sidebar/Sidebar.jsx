@@ -9,33 +9,41 @@ import { AuthContext } from '../../../context/AuthContext';
 
 const Sidebar = () => {
   const url = 'http://localhost:7001';
-  const [restaurant, setRestaurant] = useState(null);
-  const  { user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+
+  console.log(user);
 
   const fetchRestaurantProfile = async () => {
     try {
-      const restaurantId = localStorage.getItem('restaurantId');
-  
-      if (!restaurantId) {
-        toast.error('No restaurant ID found. Please login again.');
-        return;
+      if (!user || !user.id) {
+        return; 
       }
-  
-      const response = await axios.get(`${url}/api/resturants/list/${user.restaurantId}`);
+
+     
+      const response = await axios.get(`${url}/api/resturants/list/${user.id}`,{withCredentials: true});
       if (response.data.success) {
-        setRestaurant(response.data.data);
+        
+        const userRestaurant = response.data.data.find(
+          restaurant => restaurant.restaurantId === user.id
+        );
+        
+        if (userRestaurant) {
+          setRestaurant(userRestaurant);
+        }
       } else {
         toast.error('Error fetching restaurant profile');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching restaurant:', error);
       toast.error('Server error');
     }
   };
 
   useEffect(() => {
-    fetchRestaurantProfile();
-  }, []);
+    if (user) {
+      fetchRestaurantProfile();
+    }
+  }, [user]);
 
   return (
     <div className='sidebar'>
@@ -56,16 +64,14 @@ const Sidebar = () => {
           <img className='order-icon' src={assets.order_icon} alt='Order History' />
           <p>Order History</p>
         </NavLink>
-
-        {restaurant && (
-          <NavLink to={`/updaterestaurant/${user._id}`} className='sidebar-option'>
-            <img className='profile-icon' src={assets.profile} alt='Profile' />
-            <p>Profile</p>
-          </NavLink>
-        )}
+        
+        <NavLink to={`/updaterestaurant/${user?.id}`} className='sidebar-option'>
+          <img className='profile-icon' src={assets.profile} alt='Profile' />
+          <p>Profile</p>
+        </NavLink>
       </div>
     </div>
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

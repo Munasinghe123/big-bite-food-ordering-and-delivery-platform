@@ -29,15 +29,22 @@ const Orders = () => {
 		const newStatus = event.target.value;
 
 		try {
-			const response = await axios.put(`${url2}/api/order/${orderId}/status`, {
+			const response = await axios.put(`${url2}/orders/${orderId}/status`, {
 				orderStatus: newStatus
 			});
 
 			if (response.data.success) {
-				await fetchAllOrders();
+				// Update the status in the local state to avoid refetching
+				setOrders(orders.map(order => 
+					order.orderId === orderId 
+						? {...order, orderStatus: newStatus} 
+						: order
+				));
+				toast.success("Order status updated successfully");
 			}
 		} catch (error) {
-			console.error("Error")
+			console.error("Error updating order status:", error);
+			toast.error("Failed to update order status");
 		}
 	}
 
@@ -90,8 +97,11 @@ const Orders = () => {
 
 							<p><strong>Rs.{order.totalAmount}</strong></p>
 
-							<select onChange={(event) => statusHandler(event, order.orderId)} value={order.orderStatus}>
-								<option value="" disabled selected>Pending</option>
+							<select 
+								onChange={(event) => statusHandler(event, order.orderId)} 
+								value={order.orderStatus}
+							>
+								<option value="pending" disabled selected>Pending</option>
 								<option value="confirmed">Confirmed</option>
 								<option value="preparing">Preparing</option>
 								<option value="readyForPickup">Ready For Pickup</option>
