@@ -6,10 +6,6 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 import { AuthContext } from '../../Context/AuthContext';
-
-//importing useContext
-
-
 import './Customer.css';
 
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
