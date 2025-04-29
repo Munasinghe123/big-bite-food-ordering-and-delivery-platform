@@ -60,7 +60,7 @@ function PaymentSuccess() {
       }
 
       setTimeout(() => {
-        navigate('/Customer/orders');
+        navigate('/Customer');
       }, 3000);
     };
 
