@@ -1,24 +1,17 @@
-FROM node:22-bookworm-slim
+# Use official Node.js image
+FROM node:20.17.0
 
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies & fonts (English support)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    fonts-liberation \
-    fonts-freefont-ttf \
-    fontconfig \
-    && rm -rf /var/lib/apt/lists/*
-
-# Ensure fontconfig is properly initialized
-RUN fc-cache -f -v
-
-COPY package*.json ./
-
+# Copy package files and install dependencies
+COPY package.json .
 RUN npm install
 
+# Copy the rest of the files
 COPY . .
 
+# Expose the port your app runs on
 EXPOSE 5004
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start"]

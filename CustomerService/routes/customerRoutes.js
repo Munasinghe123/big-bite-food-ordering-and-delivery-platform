@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 
 const verifyToken = require('../Middleware/verifyToken');
-const verifyRole = require('../../AuthService/Middleware/verifyRole');
+const verifyRole = require('../Middleware/verifyRole');
 
 router.post('/register', register);
 

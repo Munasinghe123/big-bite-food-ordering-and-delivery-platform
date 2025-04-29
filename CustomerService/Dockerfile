@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 5002
 
 # Start the service
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]
