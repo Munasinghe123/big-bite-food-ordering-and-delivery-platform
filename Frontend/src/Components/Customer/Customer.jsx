@@ -52,7 +52,7 @@ function Customer() {
         console.log("User data:", user);
        
 
-        axios.get(`http://localhost:5002/customer/view/${user.name}`,{withCredentials: true})
+        axios.get(`http://localhost:30502/customer/view/${user.name}`,{withCredentials: true})
             .then(res => setCustomer(res.data))
             .catch(err => console.error(err));
 

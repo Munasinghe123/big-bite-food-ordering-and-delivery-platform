@@ -1,12 +1,12 @@
-FROM node:20.19.0
+FROM node:20.17.0
 
+# Set working directory
 WORKDIR /app
 
 # Copy package.json and lock file first (if available)
-COPY package*.json ./
-
-# Install deps
+COPY package.json .
 RUN npm install
+
 
 # Copy everything else (code, .env, etc.)
 COPY . .

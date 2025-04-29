@@ -15,7 +15,7 @@ const AuthProvider = ({ children }) => {
 
         const fetchUser = async () => {
             try {
-                const response = await axios.get('http://localhost:7001/api/users/checkToken', {
+                const response = await axios.get('http://localhost:30101/api/users/checkToken', {
                     withCredentials: true
                 }); 
 
@@ -37,7 +37,7 @@ const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await axios.post('http://localhost:7001/api/users/logout', {}, { withCredentials: true })
+            await axios.post('http://localhost:30101/api/users/logout', {}, { withCredentials: true })
             setUser(null);
             navigate('/');
         } catch (err) {

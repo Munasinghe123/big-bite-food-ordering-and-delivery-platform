@@ -1,18 +1,16 @@
+# Use node base image
 FROM node:20.19.0
 
 WORKDIR /app
 
-# Copy package.json and lock file first (if available)
+# Copy only package.json first for caching
 COPY package*.json ./
 
-# Install deps
 RUN npm install
 
-# Copy everything else (code, .env, etc.)
+# Now copy rest of the app
 COPY . .
 
-# Expose port
 EXPOSE 7000
 
-# Start server
 CMD ["npm", "run", "start"]

@@ -18,17 +18,6 @@ spec:
         imagePullPolicy: Never
         ports:
         - containerPort: 7001
-        env:
-        - name: EMAIL_USER
-          value: "bronew7342@gmail.com"
-        - name: EMAIL_PASS
-          value: "cyfvrclsmwkxnnnt"
-        - name: TWILIO_ACCOUNT_SID
-          value: "ACbd012f8dfd787e372103ec041ceeb21e"
-        - name: TWILIO_AUTH_TOKEN
-          value: "14e6b0eadb44625d5e65f1c5f972bb62"
-        - name: TWILIO_PHONE_NUMBER
-          value: "+12542766105"
 ---
 apiVersion: v1
 kind: Service
