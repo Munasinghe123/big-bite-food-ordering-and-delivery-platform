@@ -215,10 +215,13 @@ const getAllRestaurants = async (req, res) => {
   };
 
   const updateRestaurant = async (req, res) => {
-    const { restaurantName, restaurantLocation, lat, lng, status } = req.body;
+    const { restaurantName, restaurantLocation, lat, lng, openStatus } = req.body;
+
+    console.log("req.body",req.body);
 
     try {
-        const restaurant = await resturantModel.findById(req.params.id);
+        // const restaurant = await resturantModel.findById(req.params.id);
+        const restaurant = await resturantModel.findOne({ admin: req.params.id });
   
         if (!restaurant) {
             return res.status(404).json({ success: false, message: 'Restaurant not found' });
@@ -228,7 +231,7 @@ const getAllRestaurants = async (req, res) => {
         restaurant.restaurantLocation = restaurantLocation || restaurant.restaurantLocation;
         restaurant.lat = lat || restaurant.lat;
         restaurant.lng = lng || restaurant.lng;
-        restaurant.status = status || restaurant.status;
+        restaurant.openStatus = openStatus || restaurant.openStatus;
   
         if (req.files && req.files['resturantPhoto']) {
             const oldImage = restaurant.restaurantPhoto;
