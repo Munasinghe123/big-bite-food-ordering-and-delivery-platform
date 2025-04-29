@@ -39,8 +39,57 @@ function OrderHistory() {
     return menuItems.find((item) => item.menuId === id)?.name || 'Unknown';
   };
 
-  const completedOrders = orders.filter(o => o.orderStatus === 'delivered' || o.orderStatus === 'cancelled');
-  const otherOrders = orders.filter(o => o.orderStatus !== 'delivered' && o.orderStatus !== 'cancelled');
+  const handleDeleteOrder = async (orderId) => {
+    const confirmed = window.confirm("Are you sure you want to remove this order from history?");
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/orders/delete/${orderId}`);
+      setOrders((prev) => prev.filter((order) => order.orderId !== orderId));
+      alert("Order removed successfully.");
+    } catch (error) {
+      console.error("Failed to delete order:", error);
+      alert("Failed to delete order. Please try again.");
+    }
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    const confirmed = window.confirm("Are you sure you want to cancel this order?");
+    if (!confirmed) return;
+
+    try {
+      await axios.put(`http://localhost:5000/orders/update-order-status/${orderId}`, {
+        orderStatus: 'cancelled'
+      });
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.orderId === orderId ? { ...order, orderStatus: 'cancelled' } : order
+        )
+      );
+      alert("Order cancelled successfully.");
+    } catch (error) {
+      console.error("Failed to cancel order:", error);
+      alert("Failed to cancel order. Please try again.");
+    }
+  };
+
+  const completedOrders = orders
+  .filter(o => o.orderStatus === 'delivered' || o.orderStatus === 'cancelled')
+  .sort((a, b) => {
+    const numA = parseInt(a.orderId.split('-')[1], 10);
+    const numB = parseInt(b.orderId.split('-')[1], 10);
+    return numB - numA;
+  });
+
+const otherOrders = orders
+  .filter(o => o.orderStatus !== 'delivered' && o.orderStatus !== 'cancelled')
+  .sort((a, b) => {
+    const numA = parseInt(a.orderId.split('-')[1], 10);
+    const numB = parseInt(b.orderId.split('-')[1], 10);
+    return numB - numA;
+  });
+
+
 
   completedOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
@@ -85,6 +134,43 @@ function OrderHistory() {
           <p>{order.notes}</p>
         </>
       )}
+
+
+      {(order.orderStatus === 'delivered' || order.orderStatus === 'cancelled') && (
+        <button
+          className="remove-btn"
+          onClick={() => handleDeleteOrder(order.orderId)}
+          style={{
+            marginTop: '1rem',
+            backgroundColor: '#ff4d4d',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Remove From History
+        </button>
+      )}
+
+      {(order.orderStatus !== 'delivered' && order.orderStatus !== 'cancelled') && (
+        <button
+          className="cancel-btn"
+          onClick={() => handleCancelOrder(order.orderId)}
+          style={{
+            marginTop: '1rem',
+            backgroundColor: '#ff9800',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Cancel Order
+        </button>
+      )}
     </div>
   );
 
@@ -98,7 +184,6 @@ function OrderHistory() {
           <div className="order-history-list">
             {otherOrders.map(renderOrder)}
           </div>
-
         </div>
       )}
 
@@ -106,9 +191,8 @@ function OrderHistory() {
         <div>
           <h3>Completed Orders</h3>
           <div className="order-history-list">
-          {completedOrders.map(renderOrder)}
-        </div>
-
+            {completedOrders.map(renderOrder)}
+          </div>
         </div>
       )}
 

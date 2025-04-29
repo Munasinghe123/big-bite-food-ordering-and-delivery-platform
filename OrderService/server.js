@@ -1,17 +1,23 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser')
+const cors = require('cors');
+const app = express();
+
 const orderRoutes = require('./routes/orderRoutes');
 const stripeRoutes = require('./routes/stripeRoutes');
 
 dotenv.config();
 
-const app = express();
-app.use(express.json());
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    credentials: true,
+};
 
-const cors = require('cors');
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(cookieParser());
 
 app.use('/orders', orderRoutes);
 app.use('/stripe', stripeRoutes);
