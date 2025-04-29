@@ -9,7 +9,7 @@ const verifyToken = require('../Middleware/verifyToken');
 const verifyRole = require('../Middleware/verifyRole');
 
 
-router.post('/create-order', verifyToken, verifyRole("Customer"), createOrder);
+router.post('/create-order', createOrder);
 
 router.get('/view/:id', viewOrder);
 router.get('/view-history/:id', viewCustomerOrderHistory);

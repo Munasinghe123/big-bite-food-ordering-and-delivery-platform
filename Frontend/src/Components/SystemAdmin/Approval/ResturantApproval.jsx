@@ -9,7 +9,7 @@ function ResturantApproval() {
     useEffect(() => {
         const fetchPendingRestaurants = async () => {
             try {
-                const response = await axios.get('http://localhost:7001/api/resturants/getPendingRestaurants', { withCredentials: true });
+                const response = await axios.get('http://localhost:30101/api/resturants/getPendingRestaurants', { withCredentials: true });
                 setPendingRestaurants(response.data.pendingRestaurants);
                 console.log(response.data.pendingRestaurants);
             } catch (err) {
@@ -22,7 +22,7 @@ function ResturantApproval() {
 
     const handleApprove = async (restaurantId) => {
         try {
-            await axios.put('http://localhost:7001/api/resturants/approveRestaurant',
+            await axios.put('http://localhost:30101/api/resturants/approveRestaurant',
                 {
                     restaurantId,
                 status: "approved"},{ withCredentials: true },);
@@ -37,7 +37,7 @@ function ResturantApproval() {
 
     const handleReject = async (resturantId) => {
         try {
-            await axios.put('http://localhost:7001/api/resturants/approveRestaurant', {
+            await axios.put('http://localhost:30101/api/resturants/approveRestaurant', {
                 resturantId,
                 status: "rejected"
             },{ withCredentials: true });
@@ -74,7 +74,7 @@ function ResturantApproval() {
                                    
                                         <td>{restaurant.restaurantName}</td>
                                         <td>
-                                            <img src={`http://localhost:7001/api/uploads/${restaurant.restaurantPhoto}`}
+                                            <img src={`http://localhost:30101/api/uploads/${restaurant.restaurantPhoto}`}
                                             className='dp-photo'/>
                                         </td>
                                         <td>{restaurant.admin?.name}</td>

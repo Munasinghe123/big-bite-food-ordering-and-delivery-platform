@@ -13,7 +13,7 @@ function RejectedResturants(){
         const fetchResturants = async () => {
 
             try{
-                const response = await axios.get('http://localhost:7001/api/resturants/getRejectedResturant',
+                const response = await axios.get('http://localhost:30101/api/resturants/getRejectedResturant',
                     {withCredentials:true});
                 
                 console.log("rejected resturants",response.data.rejectedResturants);
@@ -47,7 +47,7 @@ function RejectedResturants(){
                                 <>
                                 <tr key={rest._id}>
                                     <td>{rest.resturantName}</td>
-                                    <td><img className="dp-photo" src={`http://localhost:7001/api/uploads/${rest.resturantPhoto}`}/></td>
+                                    <td><img className="dp-photo" src={`http://localhost:30101/api/uploads/${rest.resturantPhoto}`}/></td>
                                     <td>{rest.resturantLocation}</td>
                                     <td>{rest.admin.name}</td>
                                 </tr>

@@ -9,7 +9,6 @@ const TrackOrder = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Utility function to validate coordinates
   const isValidCoordinate = (lat, lon) => {
     const validLat = !isNaN(lat) && lat >= -90 && lat <= 90;
     const validLon = !isNaN(lon) && lon >= -180 && lon <= 180;
@@ -19,7 +18,6 @@ const TrackOrder = () => {
     return validLat && validLon;
   };
 
-  // Fetch order details
   useEffect(() => {
     const fetchOrder = async () => {
       if (!orderId) {
@@ -29,11 +27,10 @@ const TrackOrder = () => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:5000/orders/view/${orderId}`, {
+        const response = await axios.get(`http://localhost:30500/orders/view/${orderId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
-          // Removed withCredentials: true to avoid CORS issue
         });
         console.log('Fetched order:', response.data);
 
@@ -56,7 +53,7 @@ const TrackOrder = () => {
       } catch (err) {
         let errorMessage = 'Failed to fetch order details';
         if (err.code === 'ERR_NETWORK') {
-          errorMessage = 'Network error: Please ensure the backend server is running on http://localhost:5000.';
+          errorMessage = 'Network error: Please ensure the backend server is running';
         } else if (err.response) {
           errorMessage = `Failed to fetch order: ${err.response.status} ${err.response.statusText}`;
         }

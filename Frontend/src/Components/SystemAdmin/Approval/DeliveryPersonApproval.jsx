@@ -11,7 +11,7 @@ function DeliveryPersonApproval() {
         const fetchPendingDeliveryPersonRequests=async()=>{
             try{
 
-                const response = await axios.get('http://localhost:7001/api/deliveryPerson/pending',
+                const response = await axios.get('http://localhost:30101/api/deliveryPerson/pending',
                     {withCredentials:true});
 
                 if(response.status === 200){
@@ -30,7 +30,7 @@ function DeliveryPersonApproval() {
     const handleApprove= async(deliveryPersonId)=>{
 
         try{
-            const response = await axios.put('http://localhost:7001/api/deliveryPerson/approve',
+            const response = await axios.put('http://localhost:30101/api/deliveryPerson/approve',
                 {deliveryPersonId,status:"approved"},{withCredentials:true});
             
             if(response.status === 200){
@@ -45,7 +45,7 @@ function DeliveryPersonApproval() {
 
     const handleReject = async(deliveryPersonId)=>{
         try{
-            const response = await axios.put('http://localhost:7001/api/deliveryPerson/approve',
+            const response = await axios.put('http://localhost:30101/api/deliveryPerson/approve',
                 {deliveryPersonId,status:"rejected"},{withCredentials:true});
             
             if(response.status === 200){

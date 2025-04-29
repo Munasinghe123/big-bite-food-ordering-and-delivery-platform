@@ -16,7 +16,7 @@ function ResturantPaymentSuccess() {
       }
 
       try {
-        await axios.put(`http://localhost:7001/api/resturants/updateResturantPaymentStatus/${restaurantName}`);
+        await axios.put(`http://localhost:30101/api/resturants/updateResturantPaymentStatus/${restaurantName}`);
         console.log('Payment status updated successfully!');
       } catch (error) {
         console.error('Error updating payment status:', error);

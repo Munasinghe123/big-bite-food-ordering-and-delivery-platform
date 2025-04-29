@@ -39,7 +39,7 @@ function DileveryPersonRegistration() {
       }
 
       const response = await axios.post(
-        'http://localhost:7001/api/deliveryPerson/registerDelivery',
+        'http://localhost:30101/api/deliveryPerson/registerDelivery',
         formData,
         { withCredentials: true }
       );
@@ -48,14 +48,12 @@ function DileveryPersonRegistration() {
       
       console.log("check 1");
       
-      // 2. Create Stripe Checkout Session
-      const res = await axios.post('http://localhost:7001/stripe/create-checkout-session', {        
+      const res = await axios.post('http://localhost:30101/stripe/create-checkout-session', {        
         name: deliveryPerson.name,     
     });
 
     console.log("check 2");
     
-    // Redirect to Stripe checkout
     window.location.href = res.data.url;
 
       setSuccess(response.data.message);

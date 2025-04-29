@@ -11,7 +11,7 @@ const verifyRole = require('../Middleware/verifyRole');
 router.post('/register', register);
 
 
-router.get('/view/:id', verifyToken, verifyRole("Customer", "DeliveryPerson", "SystemAdmin"), viewCustomer);
+router.get('/view/:id',  viewCustomer);
 
 router.put('/update/:id', verifyToken, verifyRole("Customer"), updateCustomer);
 

@@ -11,7 +11,7 @@ const stripeRoutes = require('./routes/stripeRoutes');
 dotenv.config();
 
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:30100',
     credentials: true,
 };
 

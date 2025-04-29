@@ -17,14 +17,12 @@ function PaymentSuccess() {
       }
 
       try {
-
-        await axios.put(`http://localhost:7001/api/deliveryPerson/updatePaymentStatus/${name}`);
+        await axios.put(`http://localhost:30101/api/deliveryPerson/updatePaymentStatus/${name}`);
         console.log('Payment status updated successfully!');
       } catch (error) {
         console.error('Error updating payment status:', error);
       }
 
-      // Redirect user back to dashboard after 3 seconds
       setTimeout(() => {
         navigate('/'); 
       }, 3000);

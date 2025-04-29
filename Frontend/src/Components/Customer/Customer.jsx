@@ -57,14 +57,14 @@ function Customer() {
             .catch(err => console.error(err));
 
          
-            axios.get(`http://localhost:5000/orders/view-pending/${user.name}`,{withCredentials: true})
+            axios.get(`http://localhost:30500/orders/view-pending/${user.name}`,{withCredentials: true})
             .then(res => {
               setPendingOrders(res.data);
             })
             .catch(err => console.error(err));
             
 
-        axios.get('http://localhost:7001/api/resturants/list',{withCredentials: true})
+        axios.get('http://localhost:30101/api/resturants/list',{withCredentials: true})
             .then(res => {
                 if (res.data.success) {
                     const openedRestaurants = res.data.data.filter(r => r.openStatus === 'open');
@@ -80,7 +80,7 @@ function Customer() {
         setSelectedRestaurantDetails(restDetails);
 
         try {
-            const res = await axios.get('http://localhost:5004/api/menu/list', {
+            const res = await axios.get('http://localhost:30504/api/menu/list', {
                 withCredentials: true
             });
 
@@ -137,7 +137,7 @@ function Customer() {
           console.log(customer);
 
           const response = await axios.post(
-            'http://localhost:5000/orders/create-order',
+            'http://localhost:30500/orders/create-order',
             {
             cartId: `CART-${customer.name}-${Date.now()}`,
             customerUsername: customer.name,
@@ -166,9 +166,9 @@ function Customer() {
         }
       );
       
-          const order = response.data.order; // Created order object
+          const order = response.data.order; 
       
-          const res = await axios.post('http://localhost:5000/stripe/create-checkout-session', {
+          const res = await axios.post('http://localhost:30500/stripe/create-checkout-session', {
             orderId: order.orderId,
             amount: order.totalAmount,
             customerEmail: order.customerEmail,
@@ -242,7 +242,7 @@ function Customer() {
               {restaurants.map((res) => (
                   <div key={res.restaurantId} className="restaurant-card" onClick={() => handleRestaurantClick(res.restaurantId)}>
                       <img
-                          src={`http://localhost:7001/api/uploads/${res.restaurantPhoto}`}
+                          src={`http://localhost:30101/api/uploads/${res.restaurantPhoto}`}
                           alt={res.restaurantName}
                           className="restaurant-img"
                       />
@@ -260,7 +260,7 @@ function Customer() {
               {selectedRestaurantDetails && (
                   <div className="menu-restaurant-info">
                       <img
-                          src={`http://localhost:7001/api/uploads/${selectedRestaurantDetails.restaurantPhoto}`}
+                          src={`http://localhost:30101/api/uploads/${selectedRestaurantDetails.restaurantPhoto}`}
                           alt={selectedRestaurantDetails.restaurantName}
                           className="restaurant-banner-img"
                       />
@@ -285,7 +285,7 @@ function Customer() {
                               </div>
                               <div className="menu-item-img-wrap">
                                   <img
-                                      src={`http://localhost:5004/images/${item.image}`}
+                                      src={`http://localhost:30504/images/${item.image}`}
                                       alt={item.name}
                                       className="menu-item-img"
                                   />

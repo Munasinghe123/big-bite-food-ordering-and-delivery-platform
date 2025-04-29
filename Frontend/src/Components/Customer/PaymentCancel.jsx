@@ -14,7 +14,7 @@ function PaymentCancel() {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '100px' }}>
-      <h1 style={{ color: 'red' }}>Payment Cancelled ❌</h1>
+      <h1 style={{ color: 'red' }}>Payment Cancelled </h1>
       <p>Redirecting to home...</p>
     </div>
   );

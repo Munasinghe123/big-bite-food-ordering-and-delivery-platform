@@ -8,7 +8,7 @@ import './Sidebar.css';
 import { AuthContext } from '../../../Context/AuthContext';
 
 const Sidebar = () => {
-  const url = 'http://localhost:7001';
+  const url = 'http://localhost:30101';
   const { user } = useContext(AuthContext);
 
   console.log(user);

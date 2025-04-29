@@ -30,4 +30,4 @@ spec:
   ports:
   - port: 7001
     targetPort: 7001
-    nodePort: 30101   # <--- access from browser: localhost:30001
+    nodePort: 30101 
