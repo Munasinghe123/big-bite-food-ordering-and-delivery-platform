@@ -27,7 +27,7 @@ router.put('/update-delivery-person/:id', verifyToken, verifyRole("Customer", "D
 router.delete('/delete/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), deleteOrder);
 
 // manage all orders - admin
-router.get('/view-all-orders',verifyToken, verifyRole("Customer", "DeliveryPerson"),  viewAllOrders);
+router.get('/view-all-orders',verifyToken, verifyRole("Customer", "DeliveryPerson", "SystemAdmin"),  viewAllOrders);
 
 // restaurant admin
 router.put("/:orderId/status",verifyToken, verifyRole("Customer", "DeliveryPerson"), updateStatus);
