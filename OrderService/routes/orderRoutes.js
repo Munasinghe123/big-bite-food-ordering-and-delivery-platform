@@ -18,9 +18,9 @@ router.get('/view-pending/:id', verifyToken, verifyRole("Customer", "DeliveryPer
 
 // update details
 router.put('/update/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), updateOrder);
-router.put('/update-payment-status/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), updateOrderPaymentStatus);
+router.put('/update-payment-status/:id', updateOrderPaymentStatus);
 router.put('/update-order-status/:id', updateOrderStatus);
-router.put('/mark-paid/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), updateOrderPaymentStatusAfterSuccess);
+router.put('/mark-paid/:id', updateOrderPaymentStatusAfterSuccess);
 
 router.put('/update-delivery-person/:id', updateOrderDeliveryPerson);
 
