@@ -48,6 +48,7 @@ function OrderDetails() {
     window.open(mapUrl, '_blank');
   };
 
+
   if (!order) return <p>Loading order details...</p>;
 
   return (
@@ -76,8 +77,8 @@ function OrderDetails() {
         </button>
         <button 
   className="cancel-button"
-  onClick={() => order?.orderId && navigate(`/cancel-order/${order.orderId}`)}
-  disabled={!order?.orderId}
+  onClick={() =>navigate(`/cancel-order/${order.orderId}`)}
+  
 >
   Cancel Order
 </button>
