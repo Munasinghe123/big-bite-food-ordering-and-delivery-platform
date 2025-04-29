@@ -301,6 +301,7 @@ const deleteOrder = async (req, res) => {
 const updateOrderPaymentStatusAfterSuccess = async (req, res) => {
     try {
       const sessionId = req.params.id;
+      
       const order = await Order.findOneAndUpdate(
         { orderId: sessionId },
         { paymentStatus: "Paid" },

@@ -173,7 +173,7 @@ function Customer() {
             amount: order.totalAmount,
             customerEmail: order.customerEmail,
             customerName: order.customerName,
-        });
+        },{withCredentials: true});
         
         window.location.href = res.data.url;
         
