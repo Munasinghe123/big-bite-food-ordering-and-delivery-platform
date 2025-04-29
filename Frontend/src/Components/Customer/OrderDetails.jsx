@@ -74,13 +74,14 @@ function OrderDetails() {
         >
           Track Order
         </button>
+
         <button 
-  className="cancel-button"
-  onClick={() => order?.orderId && navigate(`/cancel-order/${order.orderId}`)}
-  disabled={!order?.orderId}
->
-  Cancel Order
-</button>
+          className="cancel-button"
+          onClick={() => navigate(`/cancel-order/${order.orderId}`)}
+          
+        >
+          Cancel Order
+        </button>
       </div>
     </div>
   );

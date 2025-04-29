@@ -17,7 +17,7 @@ function PaymentSuccess() {
       }
 
       try {
-        // Send request to backend to update paymentStatus to "Paid"
+
         await axios.put(`http://localhost:7001/api/deliveryPerson/updatePaymentStatus/${name}`);
         console.log('Payment status updated successfully!');
       } catch (error) {
@@ -26,7 +26,7 @@ function PaymentSuccess() {
 
       // Redirect user back to dashboard after 3 seconds
       setTimeout(() => {
-        navigate('/'); // 🔥 Your dashboard route
+        navigate('/'); 
       }, 3000);
     };
 
@@ -35,7 +35,7 @@ function PaymentSuccess() {
 
   return (
     <div className="payment-success-container">
-      <h1>✅ Payment Successful!</h1>
+      <h1>Payment Successful!</h1>
       <p>Thank you for your payment. You will be redirected shortly...</p>
     </div>
   );
