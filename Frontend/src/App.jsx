@@ -127,8 +127,8 @@ function App() {
               <Route path='/CustomerRegister' element={<CustomerRegister />} />
               <Route path='/DileveryPersonRegistration' element={<DileveryPersonRegistration />} />
               <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
-              <Route path='/payment-success' element={<PaymentSuccess />} />
-              <Route path="/payment-cancel" element={<CancelPage />} />
+              <Route path='/payment-success-admin' element={<PaymentSuccess />} />
+              <Route path="/payment-cancel-admin" element={<CancelPage />} />
               <Route path='/resturant-payment-success' element={<ResturantPaymentSuccess />} />
               <Route path='/resturant-payment-cancel' element={<ResturantPaymentCancel />} />
             </>

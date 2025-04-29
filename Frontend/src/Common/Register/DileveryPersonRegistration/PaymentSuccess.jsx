@@ -9,7 +9,7 @@ function PaymentSuccess() {
   useEffect(() => {
     const updatePaymentStatus = async () => {
 
-      const name = new URLSearchParams(location.search).get('name');
+      const name = new URLSearchParams(location.search).get('driver-name');
       
       if (!name) {
         console.error('Session ID not found in URL');
