@@ -34,7 +34,8 @@ function Customer() {
 
     const{user} = useContext(AuthContext);
 
-    const [customer, setCustomer] = useState('');
+    const [customer, setCustomer] = useState({});
+
     const [restaurants, setRestaurants] = useState([]);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
     const [menuItems, setMenuItems] = useState([]);
@@ -50,14 +51,17 @@ function Customer() {
     const navigate = useNavigate();
 
     useEffect(() => {
+
+        //debugging
+        console.log("User data:", user);
        
 
-        axios.get(`http://localhost:5002/customer/view/${user.name}`)
+        axios.get(`http://localhost:5002/customer/view/${user.name}`,{withCredentials: true})
             .then(res => setCustomer(res.data))
             .catch(err => console.error(err));
 
          
-            axios.get(`http://localhost:5000/orders/view-pending/${user.name}`)
+            axios.get(`http://localhost:5000/orders/view-pending/${user.name}`,{withCredentials: true})
             .then(res => {
               setPendingOrders(res.data);
             })
@@ -136,7 +140,9 @@ function Customer() {
           console.log(selectedRestaurantDetails);
           console.log(customer);
 
-          const response = await axios.post('http://localhost:5000/orders/create-order', {
+          const response = await axios.post(
+            'http://localhost:5000/orders/create-order',
+            {
             cartId: `CART-${customer.name}-${Date.now()}`,
             customerUsername: customer.name,
             customerName: customer.customerName,
@@ -158,7 +164,11 @@ function Customer() {
             notes,
             paymentStatus: "Pending",
             totalAmount
-          });
+        },
+        {
+          withCredentials: true 
+        }
+      );
       
           const order = response.data.order; // Created order object
       
@@ -179,6 +189,7 @@ function Customer() {
       };
          
     
+      console.log("Customer data:", customer);
      
 
     return (
@@ -193,6 +204,8 @@ function Customer() {
 
             <div>
             {customer && <h1 className="welcome">Welcome, {customer.customerName} 👋</h1>}
+
+
                 </div>
 
                 <div>

@@ -75,33 +75,6 @@ const updateCustomer = async (req, res) => {
     }
 };
 
-
-const updateCustomerPassword = async (req, res) => {
-    try {
-        const { password } = req.body;
-        const name = req.params.id;
-
-        const customer = await Customer.findOne({ name });
-
-        if (!customer) {
-            return res.status(404).json({ message: "Customer not found" });
-        }
-
-        const updatedCustomer = await Customer.findOneAndUpdate(
-            { name },
-            { password },
-            { new: true }
-        );
-
-        res.status(200).json({ message: "Password updated", updatedCustomer });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Unable to update password" });
-    }
-};
-
-
 const updateCustomerLocation = async (req, res) => {
     try {
         const { currentLocationLatitude, currentLocationLongitude } = req.body;
@@ -144,7 +117,6 @@ module.exports = {
     viewAllCustomers,
     viewCustomer,
     updateCustomer,
-    updateCustomerPassword,
     updateCustomerLocation,
     deleteCustomer
 }; 
