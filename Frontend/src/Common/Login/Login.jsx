@@ -20,6 +20,8 @@ function Login() {
 
         e.preventDefault();
 
+        console.log(name,password);
+
         const response = await axios.post(`http://localhost:7001/api/users/login`, { name, password },
             { withCredentials: true }
         );
