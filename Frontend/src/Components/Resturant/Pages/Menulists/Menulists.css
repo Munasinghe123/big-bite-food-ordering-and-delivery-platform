@@ -59,6 +59,9 @@ hr {
 
 .list-table {
   margin-left: 10px;
+  height: 85vh;
+  width: 100%;
+  overflow-y: scroll;
 }
 
 .list-table-format {

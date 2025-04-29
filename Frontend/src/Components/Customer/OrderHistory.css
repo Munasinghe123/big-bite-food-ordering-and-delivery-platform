@@ -91,6 +91,11 @@
     background-color: #ffebee;
 }
 
+.remove-btn:hover {
+    background-color: #e60000;
+}
+
+
 @media (max-width: 768px) {
     .order-card {
         padding: 1rem;

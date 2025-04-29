@@ -5,28 +5,31 @@ const {
 
 const express = require('express');
 const router = express.Router();
+const verifyToken = require('../Middleware/verifyToken');
+const verifyRole = require('../Middleware/verifyRole');
 
-router.post('/create-order', createOrder);
 
-router.get('/view/:id', viewOrder);
+router.post('/create-order', verifyToken, verifyRole("Customer"), createOrder);
+
+router.get('/view/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), viewOrder);
 router.get('/view-history/:id', viewCustomerOrderHistory);
 
-router.get('/view-pending/:id', viewPendingOrderByCustomer);
+router.get('/view-pending/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), viewPendingOrderByCustomer);
 
 // update details
-router.put('/update/:id', updateOrder);
-router.put('/update-payment-status/:id', updateOrderPaymentStatus);
-router.put('/update-order-status/:id', updateOrderStatus);
-router.put('/mark-paid/:id', updateOrderPaymentStatusAfterSuccess);
+router.put('/update/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), updateOrder);
+router.put('/update-payment-status/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), updateOrderPaymentStatus);
+router.put('/update-order-status/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), updateOrderStatus);
+router.put('/mark-paid/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), updateOrderPaymentStatusAfterSuccess);
 
-router.put('/update-delivery-person/:id', updateOrderDeliveryPerson);
+router.put('/update-delivery-person/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), updateOrderDeliveryPerson);
 
-router.delete('/delete/:id', deleteOrder);
+router.delete('/delete/:id', verifyToken, verifyRole("Customer", "DeliveryPerson"), deleteOrder);
 
 // manage all orders - admin
-router.get('/view-all-orders', viewAllOrders);
+router.get('/view-all-orders',verifyToken, verifyRole("Customer", "DeliveryPerson", "SystemAdmin"),  viewAllOrders);
 
 // restaurant admin
-router.put("/:orderId/status", updateStatus);
+router.put("/:orderId/status",verifyToken, verifyRole("Customer", "DeliveryPerson"), updateStatus);
 
 module.exports = router;

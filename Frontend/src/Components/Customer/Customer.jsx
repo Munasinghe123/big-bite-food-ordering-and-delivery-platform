@@ -6,10 +6,6 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 import { AuthContext } from '../../Context/AuthContext';
-
-//importing useContext
-
-
 import './Customer.css';
 
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
@@ -34,7 +30,8 @@ function Customer() {
 
     const{user} = useContext(AuthContext);
 
-    const [customer, setCustomer] = useState('');
+    const [customer, setCustomer] = useState({});
+
     const [restaurants, setRestaurants] = useState([]);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
     const [menuItems, setMenuItems] = useState([]);
@@ -50,21 +47,24 @@ function Customer() {
     const navigate = useNavigate();
 
     useEffect(() => {
+
+        //debugging
+        console.log("User data:", user);
        
 
-        axios.get(`http://localhost:5002/customer/view/${user.name}`)
+        axios.get(`http://localhost:5002/customer/view/${user.name}`,{withCredentials: true})
             .then(res => setCustomer(res.data))
             .catch(err => console.error(err));
 
          
-            axios.get(`http://localhost:5000/orders/view-pending/${user.name}`)
+            axios.get(`http://localhost:5000/orders/view-pending/${user.name}`,{withCredentials: true})
             .then(res => {
               setPendingOrders(res.data);
             })
             .catch(err => console.error(err));
             
 
-        axios.get('http://localhost:7001/api/resturants/list')
+        axios.get('http://localhost:7001/api/resturants/list',{withCredentials: true})
             .then(res => {
                 if (res.data.success) {
                     const openedRestaurants = res.data.data.filter(r => r.openStatus === 'open');
@@ -136,7 +136,9 @@ function Customer() {
           console.log(selectedRestaurantDetails);
           console.log(customer);
 
-          const response = await axios.post('http://localhost:5000/orders/create-order', {
+          const response = await axios.post(
+            'http://localhost:5000/orders/create-order',
+            {
             cartId: `CART-${customer.name}-${Date.now()}`,
             customerUsername: customer.name,
             customerName: customer.customerName,
@@ -158,7 +160,11 @@ function Customer() {
             notes,
             paymentStatus: "Pending",
             totalAmount
-          });
+        },
+        {
+          withCredentials: true 
+        }
+      );
       
           const order = response.data.order; // Created order object
       
@@ -167,7 +173,7 @@ function Customer() {
             amount: order.totalAmount,
             customerEmail: order.customerEmail,
             customerName: order.customerName,
-        });
+        },{withCredentials: true});
         
         window.location.href = res.data.url;
         
@@ -179,6 +185,7 @@ function Customer() {
       };
          
     
+      console.log("Customer data:", customer);
      
 
     return (
@@ -193,6 +200,8 @@ function Customer() {
 
             <div>
             {customer && <h1 className="welcome">Welcome, {customer.customerName} 👋</h1>}
+
+
                 </div>
 
                 <div>

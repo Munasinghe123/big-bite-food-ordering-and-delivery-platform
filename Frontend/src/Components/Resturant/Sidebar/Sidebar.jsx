@@ -1,31 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { assets } from '../../../assets/assets';
 import './Sidebar.css';
 
+import { AuthContext } from '../../../context/AuthContext';
+
 const Sidebar = () => {
   const url = 'http://localhost:7001';
-  const [list, setList] = useState([]);
+  const { user } = useContext(AuthContext);
 
-  const fetchAllRestaurants = async () => {
+  console.log(user);
+
+  const fetchRestaurantProfile = async () => {
     try {
-      const response = await axios.get(`${url}/api/resturants/list`);
+      if (!user || !user.id) {
+        return; 
+      }
+
+     
+      const response = await axios.get(`${url}/api/resturants/list/${user.id}`,{withCredentials: true});
       if (response.data.success) {
-        setList(response.data.data);
+        
+        const userRestaurant = response.data.data.find(
+          restaurant => restaurant.restaurantId === user.id
+        );
+        
+        if (userRestaurant) {
+          setRestaurant(userRestaurant);
+        }
       } else {
-        toast.error('Error fetching restaurants');
+        toast.error('Error fetching restaurant profile');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching restaurant:', error);
       toast.error('Server error');
     }
   };
 
   useEffect(() => {
-    fetchAllRestaurants();
-  }, []);
+    if (user) {
+      fetchRestaurantProfile();
+    }
+  }, [user]);
 
   return (
     <div className='sidebar'>
@@ -46,15 +64,11 @@ const Sidebar = () => {
           <img className='order-icon' src={assets.order_icon} alt='Order History' />
           <p>Order History</p>
         </NavLink>
-
-        {list.map((item) => (
-          <NavLink to={`/updaterestaurant/${item._id}`} className='sidebar-option' key={item._id}>
-            <img className='profile-icon' src={assets.profile} alt='Profile' />
-            <div>
-              <p>Profile</p>
-            </div>
-          </NavLink>
-        ))}
+        
+        <NavLink to={`/updaterestaurant/${user?.id}`} className='sidebar-option'>
+          <img className='profile-icon' src={assets.profile} alt='Profile' />
+          <p>Profile</p>
+        </NavLink>
       </div>
     </div>
   );

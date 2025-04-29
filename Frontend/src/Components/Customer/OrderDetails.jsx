@@ -9,7 +9,7 @@ function OrderDetails() {
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/orders/view/${id}`)
+    axios.get(`http://localhost:5000/orders/view/${id}` ,{withCredentials: true})
       .then(res => setOrder(res.data))
       .catch(err => console.error("Failed to load order:", err));
   }, [id]);
@@ -75,11 +75,12 @@ function OrderDetails() {
           Track Order
         </button>
         <button 
-          className="cancel-button"
-          onClick={() => navigate(`/CancelOrder`)}
-        >
-          Cancel Order
-        </button>
+  className="cancel-button"
+  onClick={() => order?.orderId && navigate(`/cancel-order/${order.orderId}`)}
+  disabled={!order?.orderId}
+>
+  Cancel Order
+</button>
       </div>
     </div>
   );

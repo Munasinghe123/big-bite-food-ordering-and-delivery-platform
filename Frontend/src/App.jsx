@@ -10,6 +10,7 @@ import DeliveryPersonApproval from "./Components/SystemAdmin/Approval/DeliveryPe
 import AdminDashBoard from "./Components/SystemAdmin/AdminDashBoard/AdminDashBoard";
 import RejectedResturants from "./Components/SystemAdmin/Rejected/RejectedResturants";
 import Allusers from "./Components/SystemAdmin/Allusers/AllUsers";
+import ViewOrderHistory from "./Components/SystemAdmin/OrderHistory/ViewOrderHistory";
 
 //customer
 import Customer from "./Components/Customer/Customer";
@@ -73,6 +74,7 @@ function App() {
                     <Route path='/ResturantRegistration' element={<ResturantRegistration />} />
                     <Route path="/RejectedResturants" element={<RejectedResturants/>}/>
                     <Route path="/allusers" element={<Allusers/>}/>
+                    <Route path="/order-history" element={<ViewOrderHistory />} />
 
                   </>
 
@@ -88,7 +90,7 @@ function App() {
                   <Route path="/order-details/:id" element={<OrderDetails />} />
                   <Route path="/order-history/:username" element={<OrderHistory />} />
                   <Route path="/track-order/:orderId" element={<TrackOrder />} />
-                  <Route path="/CancelOrder" element={<CancelOrder/>} />
+                  <Route path="/cancel-order/:id" element={<CancelOrder/>} />
                   </>
                 )
               }
@@ -110,7 +112,7 @@ function App() {
                 user.role === "DeliveryPerson" && (
                   <>
                   <Route path="/DeliveryPerson" element={<DeliveryPerson />} />
-                  <Route path="/OrderDetails" element = {<DOrderDetails/>}/>
+                  <Route path="/DOrderDetails" element = {<DOrderDetails/>}/>
                   <Route path="/Deliveryconfirm" element = {<Deliveryconfirm/>}/>
                   <Route path="/DeliveryDashboard" element = {<DeliveryDashboard/>}/>
                   </>

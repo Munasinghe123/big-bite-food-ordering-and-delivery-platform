@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
-const Order = require('../../OrderService/models/Order');
+const Order = require('../Models/Order');
 const Menu = require('../Models/menuModel');
 
 const generateReport = async (req, res) => {
@@ -28,12 +28,12 @@ const generateReport = async (req, res) => {
     const orderTrends = await Order.aggregate([
       {
         $match: {
-          orderTime: { $gte: new Date(new Date() - 30 * 24 * 60 * 60 * 1000) }
+          orderDate: { $gte: new Date(new Date() - 30 * 24 * 60 * 60 * 1000) } 
         }
       },
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$orderTime" } },
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$orderDate" } }, 
           orderCount: { $sum: 1 }
         }
       },
@@ -91,9 +91,9 @@ const generateReport = async (req, res) => {
 
     doc.fontSize(14).text('Orders Summary', { align: 'center' }).moveDown(1);
 
-    const orders = await Order.find({}).sort({ orderTime: -1 }).limit(10).lean();
+    const orders = await Order.find({}).sort({ orderTime: -1 }).limit(15).lean();
     const tableTop = doc.y;
-    const colWidths = [150, 100, 150, 100]; 
+    const colWidths = [120, 80, 120, 180]; 
     const startX = 40;
     
     const headerBgColor = '#d9d9d9';
@@ -102,15 +102,17 @@ const generateReport = async (req, res) => {
     
     // Draw table header
     doc.font('Helvetica-Bold');
+    doc.fontSize(14);
     doc.rect(startX, tableTop, colWidths.reduce((a, b) => a + b), 25).fill(headerBgColor).stroke();
     doc.fillColor('black')
       .text('Date', startX + 5, tableTop + 5, { width: colWidths[0] })
       .text('Total Items', startX + colWidths[0] + 5, tableTop + 5, { width: colWidths[1] })
       .text('Total Price (Rs.)', startX + colWidths[0] + colWidths[1] + 5, tableTop + 5, { width: colWidths[2] })
-      .text('Customer ID', startX + colWidths[0] + colWidths[1] + colWidths[2] + 5, tableTop + 5, { width: colWidths[3] });
+      .text('Customer Name', startX + colWidths[0] + colWidths[1] + colWidths[2] + 5, tableTop + 5, { width: colWidths[3] });
     
     let rowY = tableTop + 25;
     doc.font('Helvetica');
+    doc.fontSize(10);
     
     // Draw each order row
     orders.forEach((order, index) => {
@@ -120,7 +122,7 @@ const generateReport = async (req, res) => {
         .text(moment(order.orderTime).format('YYYY-MM-DD'), startX + 5, rowY + 5, { width: colWidths[0] })
         .text(order.items.length.toString(), startX + colWidths[0] + 5, rowY + 5, { width: colWidths[1] })
         .text(`Rs. ${(order.totalAmount || 0).toFixed(2)}`, startX + colWidths[0] + colWidths[1] + 5, rowY + 5, { width: colWidths[2] })
-        .text(order.customerId || 'N/A', startX + colWidths[0] + colWidths[1] + colWidths[2] + 5, rowY + 5, { width: colWidths[3] });
+        .text(order.customerName || 'N/A', startX + colWidths[0] + colWidths[1] + colWidths[2] + 5, rowY + 5, { width: colWidths[3] });
     
       rowY += 25;
     });

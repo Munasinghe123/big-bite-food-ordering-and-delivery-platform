@@ -100,8 +100,8 @@ const approveResturant = async (req, res) => {
 
         console.log("resturant route hit");
 
-        const updatedResturant = await resturantModel.findByIdAndUpdate(
-            restaurantId,
+        const updatedResturant = await resturantModel.findOneAndUpdate(
+            {restaurantId},
             { status },
             { new: true }
         ).populate('admin');
@@ -121,7 +121,7 @@ const approveResturant = async (req, res) => {
             email: {
                 to: updatedResturant.admin.email,
                 subject: `Your registration has been ${status}`,
-                text: `Dear ${updatedResturant.admin.name},\n\nYour ${updatedResturant.resturantName} registration has been ${status} by the system admin.\n\nThank you!`
+                text: `Dear ${updatedResturant.admin.name},\n\nYour ${updatedResturant.restaurantName} registration has been ${status} by the system admin.\n\nThank you!`
             },
             sms: {
                 to: adminPhone,
@@ -203,7 +203,8 @@ const getAllRestaurants = async (req, res) => {
   
   const getRestaurantById = async (req, res) => {
     try {
-      const restaurant = await resturantModel.findById(req.params.id);
+    //   const restaurant = await resturantModel.findById(req.params.id);
+    const restaurant = await resturantModel.findOne({ admin: req.params.id });
       if (!restaurant) {
         return res.status(404).json({ message: 'Restaurant not found' });
       }
@@ -213,9 +214,41 @@ const getAllRestaurants = async (req, res) => {
     }
   };
 
+  const updateRestaurant = async (req, res) => {
+    const { restaurantName, restaurantLocation, lat, lng, status } = req.body;
+
+    try {
+        const restaurant = await resturantModel.findById(req.params.id);
   
+        if (!restaurant) {
+            return res.status(404).json({ success: false, message: 'Restaurant not found' });
+        }
+  
+        restaurant.restaurantName = restaurantName || restaurant.restaurantName;
+        restaurant.restaurantLocation = restaurantLocation || restaurant.restaurantLocation;
+        restaurant.lat = lat || restaurant.lat;
+        restaurant.lng = lng || restaurant.lng;
+        restaurant.status = status || restaurant.status;
+  
+        if (req.files && req.files['resturantPhoto']) {
+            const oldImage = restaurant.restaurantPhoto;
+            restaurant.restaurantPhoto = req.files['resturantPhoto'][0].filename; 
+        
+            // Delete the old image file
+            fs.unlink(`uploads/${oldImage}`, (err) => {
+                if (err) console.error('Error deleting the old photo:', err);
+            });
+        }
+  
+        await restaurant.save();
+        res.status(200).json({ success: true, message: 'Restaurant updated successfully', data: restaurant });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error updating restaurant', error: error.message });
+    }
+};
+
   
 
 
-module.exports = { registerResturant, approveResturant,getPendingResturant,getRejectedResturant,updateResturantPaymentStatus, getRestaurantById, getAllRestaurants };
+module.exports = { registerResturant, approveResturant,getPendingResturant,getRejectedResturant,updateResturantPaymentStatus, getRestaurantById, getAllRestaurants, updateRestaurant };
 
