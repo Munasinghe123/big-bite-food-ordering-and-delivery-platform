@@ -20,7 +20,7 @@ function PaymentSuccess() {
 
       try {
         // Step 1: Update payment status to "Paid"
-        await axios.put(`http://localhost:5000/orders/mark-paid/${orderId}`);
+        await axios.put(`http://localhost:5000/orders/mark-paid/${orderId}`,{withCredentials: true});
         console.log('Payment status updated successfully!');
         toast.success('Payment successfully processed!');
 
