@@ -30,6 +30,6 @@ router.delete('/delete/:id', verifyToken, verifyRole("Customer", "DeliveryPerson
 router.get('/view-all-orders', viewAllOrders);
 
 // restaurant admin
-router.put("/:orderId/status",verifyToken, verifyRole("Customer", "DeliveryPerson"), updateStatus);
+router.put("/:orderId/status", updateStatus);
 
 module.exports = router;

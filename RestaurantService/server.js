@@ -25,7 +25,9 @@ app.use(cookieParser());
 // api endpoints
 
 app.use('/api/menu', menuRoutes);
-app.use('/images', express.static('uploads'));
+//app.use('/images', express.static('uploads'));
+app.use('/images', express.static(path.join(__dirname, 'uploads')));
+
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/report', reportRoutes);
 

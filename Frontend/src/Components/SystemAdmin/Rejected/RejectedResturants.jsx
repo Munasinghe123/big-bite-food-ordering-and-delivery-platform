@@ -35,10 +35,10 @@ function RejectedResturants(){
                     <table className="rejected-resturanted-table">
                         <thead>
                             <tr>
-                                <th>Resturant name</th>
-                                <th>Resturant photo</th>
-                                <th>Resturant Location</th>
-                                <th>Resturant admin name</th>
+                                <th>Restaurant name</th>
+                                <th>Restaurant photo</th>
+                                <th>Restaurant Location</th>
+                                <th>Restaurant admin name</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -46,9 +46,9 @@ function RejectedResturants(){
                             return(
                                 <>
                                 <tr key={rest._id}>
-                                    <td>{rest.resturantName}</td>
-                                    <td><img className="dp-photo" src={`http://localhost:30101/api/uploads/${rest.resturantPhoto}`}/></td>
-                                    <td>{rest.resturantLocation}</td>
+                                    <td>{rest.restaurantName}</td>
+                                    <td><img className="dp-photo" src={`http://localhost:30101/api/uploads/${rest.restaurantPhoto}`}/></td>
+                                    <td>{rest.restaurantLocation}</td>
                                     <td>{rest.admin.name}</td>
                                 </tr>
                                 </>
@@ -58,7 +58,7 @@ function RejectedResturants(){
                     </table>
                 </div>
             ):(
-                <h3>No rejected resturants</h3>
+                <h3>No rejected restaurants</h3>
             )}
         </div>
         

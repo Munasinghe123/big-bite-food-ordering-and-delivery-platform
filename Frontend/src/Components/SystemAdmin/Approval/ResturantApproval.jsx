@@ -35,10 +35,10 @@ function ResturantApproval() {
         }
     };
 
-    const handleReject = async (resturantId) => {
+    const handleReject = async (restaurantId) => {
         try {
             await axios.put('http://localhost:30101/api/resturants/approveRestaurant', {
-                resturantId,
+                restaurantId,
                 status: "rejected"
             },{ withCredentials: true });
            
