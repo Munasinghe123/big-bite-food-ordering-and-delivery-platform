@@ -199,7 +199,7 @@ function Customer() {
           <div>
 
             <div>
-            {customer && <h1 className="welcome">Welcome, {customer.customerName} 👋</h1>}
+            {customer && <h1 className="welcome">Welcome, {customer.customerName}</h1>}
 
 
                 </div>
@@ -208,7 +208,7 @@ function Customer() {
                 
                 {pendingOrders.length > 0 && (
                 <div className="pending-orders">
-                    <h3><span className="clock-icon">⏰</span> Your Pending Orders</h3>
+                    <h3>Your Pending Orders</h3>
                     <div className="pending-orders-grid">
                     {pendingOrders.map((order) => (
                         <div key={order.orderId} className="pending-order-card">
@@ -267,7 +267,6 @@ function Customer() {
                       <div className="restaurant-summary">
                           <h2 className="restaurant-name">{selectedRestaurantDetails.restaurantName}</h2>
                           <p className="restaurant-address">{selectedRestaurantDetails.restaurantLocation}</p>
-                          <p className="restaurant-meta">⭐ 4.8 (180+) • Rs.99 Delivery Fee • 35 min</p>
                       </div>
                   </div>
               )}
@@ -280,7 +279,7 @@ function Customer() {
                           <div key={item.menuId} className="menu-item">
                               <div className="menu-item-info">
                                   <h4 className="menu-title">{item.name}</h4>
-                                  <p className="menu-meta">LKR {item.price.toFixed(2)} • 👍 90% (45)</p>
+                                  <p className="menu-meta">LKR {item.price.toFixed(2)}</p>
                                   <p className="menu-description">{item.description}</p>
                               </div>
                               <div className="menu-item-img-wrap">
