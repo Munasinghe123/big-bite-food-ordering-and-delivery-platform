@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:30100',
     credentials: true,
 };
 
@@ -25,7 +25,9 @@ app.use(cookieParser());
 // api endpoints
 
 app.use('/api/menu', menuRoutes);
-app.use('/images', express.static('uploads'));
+//app.use('/images', express.static('uploads'));
+app.use('/images', express.static(path.join(__dirname, 'uploads')));
+
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/report', reportRoutes);
 

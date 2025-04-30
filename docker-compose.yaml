@@ -5,6 +5,10 @@ services:
     container_name: order-service
     ports:
       - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb+srv://dinuka:1234@cluster0.zdovbfd.mongodb.net/bigBite?retryWrites=true&w=majority&appName=Cluster0
+      - ORS_API_KEY=5b3ce3597851110001cf6248d96d91fec01e4e8f86ea6331b2c3dcb8
+      - JWT_SECRET=sliitit  
 
 
   customer-service:
@@ -12,6 +16,9 @@ services:
     container_name: customer-service
     ports:
       - "5002:5002"
+    environment:
+      - MONGO_URI=mongodb+srv://dinuka:1234@cluster0.zdovbfd.mongodb.net/bigBite?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=sliitit   
 
 
   restaurant-service:
@@ -19,33 +26,49 @@ services:
     container_name: restaurant-service
     ports:
       - "5004:5004"
+    environment:
+      - CONNECTION_STRING=mongodb+srv://dinuka:1234@cluster0.zdovbfd.mongodb.net/bigBite?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=sliitit
 
 
   delivery-service:
     build: ./DeliveryService
     container_name: delivery-service
     ports:
-      - "5004:5004"    
+      - "7003:7003"  
+    environment:   
+      - CONNECTION_STRING=mongodb+srv://dinuka:1234@cluster0.zdovbfd.mongodb.net/bigBite?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=sliitit
+      - PAYMENT_SUCCESS_SECRET=5b3ce3597851110001cf6248d96d91fec01e4e8f86ea6331b2c3dcb8
 
 
   admin-notification-service:
-    build:
-      context: ./AdminNotificationService
+    build: ./AdminNotificationService
+    container_name: admin-notification-service
     ports:
       - "7000:7000"
     volumes:
       - ./AdminNotificationService:/app 
+    environment:  
+      - EMAIL_USER=bronew7342@gmail.com
+      - EMAIL_PASS=cyfvrclsmwkxnnnt
+      - TWILIO_ACCOUNT_SID=ACbd012f8dfd787e372103ec041ceeb21e
+      - TWILIO_AUTH_TOKEN=14e6b0eadb44625d5e65f1c5f972bb62
+      - TWILIO_PHONE_NUMBER=+12542766105
 
 
   auth-service:
-    build:
-      context: ./AuthService
+    build: ./AuthService
+    container_name: auth-service
     ports:
       - "7001:7001"
     volumes:
       - ./AuthService:/app
     depends_on:
-      - admin-notification-service
+      - admin-notification-service      
+    environment:  
+      - CONNECTION_STRING=mongodb+srv://dinuka:1234@cluster0.zdovbfd.mongodb.net/bigBite?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=sliitit
 
 
   frontend:
@@ -57,3 +80,7 @@ services:
       - order-service
       - customer-service
       - restaurant-service
+      - delivery-service
+      - auth-service
+    environment:
+      - VITE_PAYMENT_SUCCESS_SECRET=5b3ce3597851110001cf6248d96d91fec01e4e8f86ea6331b2c3dcb8

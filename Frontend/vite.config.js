@@ -5,6 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   define: {
-    'process.env': process.env
+    'process.env.VITE_PAYMENT_SUCCESS_SECRET': JSON.stringify(process.env.VITE_PAYMENT_SUCCESS_SECRET)
   }
 })

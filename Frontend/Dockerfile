@@ -2,14 +2,13 @@ FROM node:20.19.0
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
 RUN npm install
 
-COPY . ./
-
-# USER node  
+COPY . .
 
 EXPOSE 5173
+
 
 CMD ["npm", "run", "dev"]

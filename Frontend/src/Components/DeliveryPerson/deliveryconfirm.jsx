@@ -2,20 +2,18 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../Context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// Status constants to match backend
 const ORDER_STATUS = {
   OUT_FOR_DELIVERY: 'outForDelivery',
   DELIVERED: 'delivered',
 };
 
-// Function to reverse geocode coordinates using Nominatim API
 const reverseGeocode = async (lat, lon) => {
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`,
       {
         headers: {
-          'User-Agent': 'DeliveryApp/1.0 (contact: your-email@example.com)', // Replace with your app name and contact
+          'User-Agent': 'DeliveryApp/1.0 (contact: your-email@example.com)', 
         },
       }
     );
@@ -25,10 +23,10 @@ const reverseGeocode = async (lat, lon) => {
     }
 
     const data = await response.json();
-    return data.display_name || `${lat}, ${lon}`; // Fallback to coordinates if address not found
+    return data.display_name || `${lat}, ${lon}`; 
   } catch (err) {
     console.error('Error reverse geocoding:', err);
-    return `${lat}, ${lon}`; // Fallback to coordinates on error
+    return `${lat}, ${lon}`; 
   }
 };
 
@@ -36,13 +34,13 @@ function DeliveryConfirm() {
   const { user } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
-  const { order } = location.state || {}; // Extract order details from state, with fallback
-  const [deliveryAddress, setDeliveryAddress] = useState(null); // Store delivery address
+  const { order } = location.state || {}; 
+  const [deliveryAddress, setDeliveryAddress] = useState(null); 
 
-  // Base URL for API requests
-  const API_BASE_URL = 'http://localhost:7003';
 
-  // Fetch the delivery address when the order is available
+  const API_BASE_URL = 'http://localhost:30703';
+
+
   useEffect(() => {
     const fetchDeliveryAddress = async () => {
       if (order?.deliveryLocation?.latitude && order?.deliveryLocation?.longitude) {

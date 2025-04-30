@@ -19,13 +19,17 @@ router.post('/create-checkout-session', async (req, res) => {
               name: 'Delivery Person Registration Fee',
               description: `Registration payment for ${name}`,
             },
-            unit_amount: 50000,
+
+            unit_amount: 50000, // amount in cents
+
           },
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:5173/payment-success-admin?driver-name=${encodeURIComponent(name)}`,
-      cancel_url: `http://localhost:5173/payment-cancel-admin`,
+
+      success_url: `http://localhost:30100//payment-success-admin?personName=${encodeURIComponent(name)}`,
+      cancel_url: `http://localhost:30100/payment-cancel-admin`,
+
     });
 
     res.status(200).json({ url: session.url });
@@ -56,8 +60,8 @@ router.post('/create-resturant-checkout-session', async (req, res) => {
           quantity: 1,
         },
       ],
-      success_url: `http://localhost:5173/resturant-payment-success?restaurantName=${encodeURIComponent(restaurantName)}`,
-      cancel_url: `http://localhost:5173/resturant-payment-cancel`,
+      success_url: `http://localhost:30100/resturant-payment-success?restaurantName=${encodeURIComponent(restaurantName)}`,
+      cancel_url: `http://localhost:30100/resturant-payment-cancel`,
     });
 
     res.status(200).json({ url: session.url });

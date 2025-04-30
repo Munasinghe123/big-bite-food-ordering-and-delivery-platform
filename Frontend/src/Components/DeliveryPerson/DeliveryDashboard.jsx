@@ -12,11 +12,11 @@ const DeliveryPerson = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:7001/Addoder/showoder', {
-          method: 'GET', // Ensure method matches backend
+        const response = await fetch('http://localhost:30101/Addoder/showoder', {
+          method: 'GET', 
           credentials: 'include',
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, // Add token for auth
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
         if (!response.ok) {
@@ -37,7 +37,7 @@ const DeliveryPerson = () => {
 
   const acceptOrder = async (orderId, orderDetails) => {
     try {
-      const response = await fetch(`http://localhost:7001/Addoder/updateOrder/${orderId}`, {
+      const response = await fetch(`http://localhost:30101/Addoder/updateOrder/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const DeliveryPerson = () => {
 
   const pickupConfirm = async (orderId, orderDetails) => {
     try {
-      const response = await fetch(`http://localhost:7001/Addoder/updateOrder/${orderId}`, {
+      const response = await fetch(`http://localhost:30101/Addoder/updateOrder/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

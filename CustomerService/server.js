@@ -10,11 +10,12 @@ const customerRoutes = require('./routes/customerRoutes');
 dotenv.config();
 
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:30100',
     credentials: true,
 };
 
 app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(cookieParser());
 

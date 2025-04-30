@@ -1,0 +1,82 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: systemadminone
+build:
+  artifacts:
+    - image: localhost/systemadminone-auth-service
+      context: ./AuthService
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+          - src: '**/*.json'
+            dest: .
+    - image: localhost/systemadminone-admin-notification-service
+      context: ./AdminNotificationService
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+          - src: '**/*.json'
+            dest: .
+    - image: localhost/systemadminone-order-service
+      context: ./OrderService
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+          - src: '**/*.json'
+            dest: .
+    - image: localhost/systemadminone-customer-service
+      context: ./CustomerService
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+          - src: '**/*.json'
+            dest: .
+    - image: localhost/systemadminone-restaurant-service
+      context: ./RestaurantService
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+          - src: '**/*.json'
+            dest: .
+    - image: localhost/systemadminone-delivery-service
+      context: ./DeliveryService
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+          - src: '**/*.json'
+            dest: .
+    - image: localhost/systemadminone-frontend
+      context: ./Frontend
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+          - src: '**/*.jsx'
+            dest: .
+          - src: '**/*.ts'
+            dest: .
+          - src: '**/*.tsx'
+            dest: .
+          - src: '**/*.json'
+            dest: .
+manifests:
+  rawYaml:
+    - k8s/*.yml
+deploy:
+  kubectl: {}
+portForward:
+  - resourceType: service
+    resourceName: frontend-service
+    port: 5173
+    localPort: 30100
+  - resourceType: service
+    resourceName: auth-service
+    port: 7001
+    localPort: 30101

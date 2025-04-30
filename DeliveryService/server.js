@@ -22,7 +22,7 @@ const userRelatedRoutes = require('./Routes/SystemAdmin/UserRelatedRoutes');
 const app = express();
 
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:30100',
     credentials: true,
 };
 
