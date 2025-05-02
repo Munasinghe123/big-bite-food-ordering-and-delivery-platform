@@ -59,12 +59,12 @@ function CustomerRegister() {
         formData.append('customerPhoto', photo);
       }
 
-      await axios.post('http://localhost:7001/api/users/register', formData, {
+      await axios.post('http://localhost:30101/api/users/register', formData, {
         withCredentials: true,
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      const customerResponse = await axios.post('http://localhost:5002/customer/register', {
+      const customerResponse = await axios.post('http://localhost:30502/customer/register', {
         customerName,
         email,
         phone,

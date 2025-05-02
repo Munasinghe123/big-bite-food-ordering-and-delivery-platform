@@ -9,7 +9,7 @@ const verifyToken = require('../Middleware/verifyToken');
 const verifyRole = require('../Middleware/verifyRole');
 
 
-router.post('/create-order', verifyToken, verifyRole("Customer"), createOrder);
+router.post('/create-order', createOrder);
 
 router.get('/view/:id', viewOrder);
 router.get('/view-history/:id', viewCustomerOrderHistory);
@@ -30,6 +30,6 @@ router.delete('/delete/:id', verifyToken, verifyRole("Customer", "DeliveryPerson
 router.get('/view-all-orders', viewAllOrders);
 
 // restaurant admin
-router.put("/:orderId/status",verifyToken, verifyRole("Customer", "DeliveryPerson"), updateStatus);
+router.put("/:orderId/status", updateStatus);
 
 module.exports = router;

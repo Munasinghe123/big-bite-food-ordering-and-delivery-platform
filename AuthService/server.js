@@ -13,7 +13,7 @@ const stripeRoutes = require('./Routes/stripeRoutes');
 
 
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:30100',
     credentials: true,
 };
 

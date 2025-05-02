@@ -62,7 +62,7 @@ function ResturantRegistration() {
         formData.append("adminPhoto", adminPhoto);
       }
 
-      const response = await axios.post('http://localhost:7001/api/resturants/registerResturant', formData, {
+      const response = await axios.post('http://localhost:30101/api/resturants/registerResturant', formData, {
         withCredentials: true,
       });
 
@@ -71,7 +71,7 @@ function ResturantRegistration() {
       console.log("Registered Resturant", registeredResturant);
 
       
-      const stripeRes = await axios.post('http://localhost:7001/stripe/create-resturant-checkout-session', {
+      const stripeRes = await axios.post('http://localhost:30101/stripe/create-resturant-checkout-session', {
         restaurantName: registeredResturant.restaurantName,
       });
 

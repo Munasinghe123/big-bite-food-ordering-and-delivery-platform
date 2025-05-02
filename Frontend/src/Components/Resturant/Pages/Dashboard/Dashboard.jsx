@@ -7,8 +7,8 @@ import Sidebar from '../../Sidebar/Sidebar';
 import { toast } from 'react-toastify';
 
 const Dashboard = () => {
-  const url = "http://localhost:5004";
-  const url2 = "http://localhost:5000";
+  const url = "http://localhost:30504";
+  const url2 = "http://localhost:30500";
 
   const [dashboardStats, setDashboardStats] = useState({
     restaurantCount: 0,
@@ -50,7 +50,7 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    // Fetch dashboard stats
+
     axios.get(`${url}/api/dashboard/stats`)
       .then(response => {
         setDashboardStats(response.data.data);
@@ -59,7 +59,7 @@ const Dashboard = () => {
         console.error('Error fetching dashboard stats:', error);
       });
 
-    // Fetch popular menu items
+
     axios.get(`${url}/api/dashboard/popular-menu-items`)
       .then(response => {
         setPopularMenuItems(response.data.data);
@@ -68,7 +68,7 @@ const Dashboard = () => {
         console.error('Error fetching popular menu items:', error);
       });
 
-    // Fetch order trends
+
     axios.get(`${url}/api/dashboard/order-trends`)
       .then(response => {
         setOrderTrends(response.data.data);

@@ -1,16 +1,18 @@
-FROM node:18-alpine
+FROM node:20.19.0
 
 WORKDIR /app
 
-# Install build dependencies for bcrypt
-RUN apk add --no-cache python3 make g++ && \
-    npm install -g nodemon
-
+# Copy package.json and lock file first (if available)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install deps
+RUN npm install
 
+# Copy everything else (code, .env, etc.)
 COPY . .
 
-CMD ["nodemon", "src/server.js"]
+# Expose port
+EXPOSE 7003
+
+# Start server
+CMD ["npm", "run", "start"]

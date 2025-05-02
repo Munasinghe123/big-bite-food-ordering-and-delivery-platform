@@ -9,7 +9,7 @@ import Sidebar from '../../Sidebar/Sidebar';
 const UpdateMenu = () => {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const url = 'http://localhost:5004';
+	const url = 'http://localhost:30504';
 
 	const [data, setData] = useState({
 		name: '',

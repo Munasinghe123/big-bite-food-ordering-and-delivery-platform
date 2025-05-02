@@ -5,10 +5,10 @@ import { toast } from 'react-toastify';
 import { assets } from '../../../assets/assets';
 import './Sidebar.css';
 
-import { AuthContext } from '../../../context/AuthContext';
+import { AuthContext } from '../../../Context/AuthContext';
 
 const Sidebar = () => {
-  const url = 'http://localhost:7001';
+  const url = 'http://localhost:30101';
   const { user } = useContext(AuthContext);
 
   console.log(user);
@@ -23,13 +23,7 @@ const Sidebar = () => {
       const response = await axios.get(`${url}/api/resturants/list/${user.id}`,{withCredentials: true});
       if (response.data.success) {
         
-        const userRestaurant = response.data.data.find(
-          restaurant => restaurant.restaurantId === user.id
-        );
         
-        if (userRestaurant) {
-          setRestaurant(userRestaurant);
-        }
       } else {
         toast.error('Error fetching restaurant profile');
       }

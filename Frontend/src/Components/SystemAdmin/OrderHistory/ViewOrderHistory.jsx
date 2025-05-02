@@ -10,7 +10,7 @@ function ViewOrderHistory() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/orders/view-all-orders`);
+        const res = await axios.get(`http://localhost:30500/orders/view-all-orders`);
         setOrders(res.data);
       } catch (err) {
         console.error('Error fetching order history:', err);
@@ -19,7 +19,7 @@ function ViewOrderHistory() {
 
     const fetchMenuItems = async () => {
       try {
-        const res = await axios.get('http://localhost:5004/api/menu/list', {
+        const res = await axios.get('http://localhost:30504/api/menu/list', {
           withCredentials: true
         });
         if (res.data.success) {
@@ -43,7 +43,7 @@ function ViewOrderHistory() {
     if (!confirmed) return;
 
     try {
-      await axios.delete(`http://localhost:5000/orders/delete/${orderId}`);
+      await axios.delete(`http://localhost:30500/orders/delete/${orderId}`);
       setOrders((prev) => prev.filter((order) => order.orderId !== orderId));
       alert("Order removed successfully.");
     } catch (error) {
@@ -57,7 +57,7 @@ function ViewOrderHistory() {
     if (!confirmed) return;
 
     try {
-      await axios.put(`http://localhost:5000/orders/update-order-status/${orderId}`, {
+      await axios.put(`http://localhost:30500/orders/update-order-status/${orderId}`, {
         orderStatus: 'cancelled'
       });
       setOrders((prev) =>
@@ -192,7 +192,7 @@ function ViewOrderHistory() {
         </div>
       )}
 
-      {orders.length === 0 && <p>No orders found for this user.</p>}
+      {orders.length === 0 && <p>No orders available..</p>}
     </div>
   );
 }
