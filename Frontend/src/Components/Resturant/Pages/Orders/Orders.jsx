@@ -6,8 +6,8 @@ import { assets } from '../../../../assets/assets';
 import Sidebar from '../../Sidebar/Sidebar';
 
 const Orders = () => {
-	const url = "http://localhost:5004";
-	const url2 = "http://localhost:5000";
+	const url = "http://localhost:30504";
+	const url2 = "http://localhost:30500";
 
 	const [orders, setOrders] = useState([]);
 
@@ -34,7 +34,7 @@ const Orders = () => {
 			});
 
 			if (response.data.success) {
-				// Update the status in the local state to avoid refetching
+				
 				setOrders(orders.map(order => 
 					order.orderId === orderId 
 						? {...order, orderStatus: newStatus} 
@@ -69,7 +69,7 @@ const Orders = () => {
 						onClick={handleDownload}
 						className='download-btn'
 					>
-						📄 Download PDF Report
+						Download PDF Report
 					</button>
 				</div>
 				<div className='order-list'>

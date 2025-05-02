@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Stripe = require('stripe');
-const Order = require('../models/Order'); // your Order model
 
-// Initialize Stripe instance
+
 const stripe = new Stripe('sk_test_51RHlmtPIEAGnbZzQif2Cof9KPE93wjkJg2dcI7BzI9lGiVoEULxHD92RtIwOYdnpdKoxaWQTeEmqvCZytgmZxs4e00MABbu6PM'); // << put your secret key here
 
 router.post('/create-checkout-session', async (req, res) => {
@@ -19,16 +18,16 @@ router.post('/create-checkout-session', async (req, res) => {
                   product_data: {
                       name: `Order ${orderId}`,
                   },
-                  unit_amount: Math.round(amount * 100), // Important
+                  unit_amount: Math.round(amount * 100),
               },
               quantity: 1,
           }],
-          success_url: `http://localhost:5173/payment-success?orderId=${orderId}`,
-          cancel_url: 'http://localhost:5173/payment-cancel',
+          success_url: `http://localhost:30100/payment-success?orderId=${orderId}`,
+          cancel_url: 'http://localhost:30100/payment-cancel',
           customer_email: customerEmail,
       });
 
-      res.json({ url: session.url }); // Important: send back session URL
+      res.json({ url: session.url }); 
 
   } catch (error) {
       console.error('Stripe checkout error:', error);

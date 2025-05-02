@@ -145,7 +145,7 @@ router.post('/assign-driver-payment-success', async (req, res) => {
     // Fetch the specific order from order-service
     let order;
     try {
-      const response = await axios.get(`http://localhost:5000/orders/view/${orderId}`);
+      const response = await axios.get(`http://order-service:5000/orders/view/${orderId}`);
       order = response.data;
       
       if (!order || order.orderStatus !== 'pending' || order.paymentStatus !== 'Paid' || order.deliveryPersonId) {
@@ -216,13 +216,13 @@ router.post('/assign-driver-payment-success', async (req, res) => {
 
     // Update order with driver assignment
     try {
-      await axios.put(`http://localhost:5000/orders/update-delivery-person/${orderId}`, {
+      await axios.put(`http://order-service:5000/orders/update-delivery-person/${orderId}`, {
         deliveryPersonId: nearestDriver.userId,
         deliveryPersonName: nearestDriver.name,
         deliveryPersonPhone: nearestDriver.phone,
       });
 
-      await axios.put(`http://localhost:5000/orders/update-order-status/${orderId}`, {
+      await axios.put(`http://order-service:5000/orders/update-order-status/${orderId}`, {
         orderStatus: 'driverAssigned',
       });
 
@@ -282,7 +282,7 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
     // Fetch pending orders from order-service
     let pendingOrders;
     try {
-      const response = await axios.get('http://localhost:5000/orders/view-all-orders');
+      const response = await axios.get('http://order-service:5000/orders/view-all-orders');
       pendingOrders = response.data.filter(
         (order) =>
           order.orderStatus === 'pending' &&
@@ -389,13 +389,13 @@ router.post('/assign-driver-auto', verifyToken, async (req, res) => {
 
         // Update order with driver assignment via order-service API
         try {
-          await axios.put(`http://localhost:5000/orders/update-delivery-person/${order.orderId}`, {
+          await axios.put(`http://order-service:5000/orders/update-delivery-person/${order.orderId}`, {
             deliveryPersonId: driverUser.id,
             deliveryPersonName: driverUser.name,
             deliveryPersonPhone: driverUser.phone,
           });
 
-          await axios.put(`http://localhost:5000/orders/update-order-status/${order.orderId}`, {
+          await axios.put(`http://order-service:5000/orders/update-order-status/${order.orderId}`, {
             orderStatus: 'driverAssigned',
           });
         } catch (updateErr) {
@@ -473,7 +473,7 @@ router.get('/showtheorder', verifyToken, async (req, res) => {
 
     let orders;
     try {
-      const response = await axios.get('http://localhost:5000/orders/view-all-orders');
+      const response = await axios.get('http://order-service:5000/orders/view-all-orders');
       orders = response.data;
     } catch (apiErr) {
       console.error('Error fetching orders from order-service:', apiErr.message);
@@ -573,7 +573,7 @@ router.put('/updateOrder/:id', verifyToken, async (req, res) => {
 
     let updatedOrder;
     try {
-      const response = await axios.put(`http://localhost:5000/orders/update-order-status/${id}`, {
+      const response = await axios.put(`http://order-service:5000/orders/update-order-status/${id}`, {
         orderStatus,
       });
       updatedOrder = response.data.updatedOrder;
@@ -693,7 +693,7 @@ router.get('/completed-orders/:driverId', verifyToken, async (req, res) => {
 
     let orders;
     try {
-      const response = await axios.get('http://localhost:5000/orders/view-all-orders');
+      const response = await axios.get('http://order-service:5000/orders/view-all-orders');
       orders = response.data;
     } catch (apiErr) {
       console.error('Error fetching orders from order-service:', apiErr.message);
@@ -750,12 +750,12 @@ router.post('/record-delivery', verifyToken, async (req, res) => {
 
     let updatedOrder;
     try {
-      const response = await axios.put(`http://localhost:5000/orders/update-order-status/${orderId}`, {
+      const response = await axios.put(`http://order-service:5000/orders/update-order-status/${orderId}`, {
         orderStatus: 'delivered',
       });
       updatedOrder = response.data.updatedOrder;
 
-      await axios.put(`http://localhost:5000/orders/update/${orderId}`, {
+      await axios.put(`http://order-service:5000/orders/update/${orderId}`, {
         deliveryPersonId,
         deliveredTime: new Date(),
       });
@@ -813,7 +813,7 @@ router.get('/customer-orders', verifyToken, async (req, res) => {
 
     let orders;
     try {
-      const response = await axios.get(`http://localhost:5000/orders/view-history/${userId}`);
+      const response = await axios.get(`http://order-service:5000/orders/view-history/${userId}`);
       orders = response.data;
     } catch (apiErr) {
       console.error('Error fetching customer orders from order-service:', apiErr.message);
@@ -956,11 +956,11 @@ router.post('/cancel-order/:id', verifyToken, async (req, res) => {
     try {
       // Try fetching specific order first (if endpoint exists)
       try {
-        const response = await axios.get(`http://localhost:5000/orders/${orderId}`);
+        const response = await axios.get(`http://order-service:5000/orders/${orderId}`);
         order = response.data;
       } catch (specificErr) {
         console.warn(`Specific order fetch failed for ${orderId}, falling back to view-all-orders: ${specificErr.message}`);
-        const response = await axios.get(`http://localhost:5000/orders/view-all-orders`);
+        const response = await axios.get(`http://order-service:5000/orders/view-all-orders`);
         order = response.data.find(o => o.orderId === orderId);
       }
     } catch (apiErr) {
@@ -989,7 +989,7 @@ router.post('/cancel-order/:id', verifyToken, async (req, res) => {
 
       // Update the order in the order-service to persist customerId
       try {
-        await axios.put(`http://localhost:5000/orders/update/${orderId}`, {
+        await axios.put(`http://order-service:5000/orders/update/${orderId}`, {
           customerId: userId,
         });
         console.log(`Updated order ${orderId} with customerId ${userId} in order-service`);
@@ -1032,7 +1032,7 @@ router.post('/cancel-order/:id', verifyToken, async (req, res) => {
     // Update order status to 'cancelled'
     let updatedOrder;
     try {
-      const response = await axios.put(`http://localhost:5000/orders/update-order-status/${orderId}`, {
+      const response = await axios.put(`http://order-service:5000/orders/update-order-status/${orderId}`, {
         orderStatus: 'cancelled',
       });
       updatedOrder = response.data.updatedOrder;
@@ -1066,7 +1066,7 @@ router.post('/cancel-order/:id', verifyToken, async (req, res) => {
           }Please dispose of any picked-up items as you see fit or return to the restaurant if applicable.\n\nBest regards,\nYour Delivery App Team`;
 
           try {
-            await axios.post('http://localhost:7000/api/notifications/send-notifications', {
+            await axios.post('http://admin-notification-service:7000/api/notifications/send-notifications', {
               email: {
                 to: driver.email,
                 subject: emailSubject,

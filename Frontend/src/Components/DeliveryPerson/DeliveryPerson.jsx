@@ -3,7 +3,6 @@ import { AuthContext } from '../../Context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../DeliveryPerson/DeliveryPerson.css';
 
-// Status constants to match backend's validStatuses array
 const ORDER_STATUS = {
   DRIVER_ASSIGNED: 'driverAssigned',
   DRIVER_ACCEPTED: 'driverAccepted',
@@ -11,17 +10,15 @@ const ORDER_STATUS = {
   DELIVERED: 'delivered',
 };
 
-// Utility function to delay requests (to comply with Nominatim rate limits)
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Function to reverse geocode coordinates using Nominatim API
 const reverseGeocode = async (lat, lon) => {
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`,
       {
         headers: {
-          'User-Agent': 'DeliveryApp/1.0 (contact: your-email@example.com)', // Replace with your app name and contact
+          'User-Agent': 'DeliveryApp/1.0 (contact: your-email@example.com)', 
         },
       }
     );
@@ -31,10 +28,10 @@ const reverseGeocode = async (lat, lon) => {
     }
 
     const data = await response.json();
-    return data.display_name || `${lat}, ${lon}`; // Fallback to coordinates if address not found
+    return data.display_name || `${lat}, ${lon}`; 
   } catch (err) {
     console.error('Error reverse geocoding:', err);
-    return `${lat}, ${lon}`; // Fallback to coordinates on error
+    return `${lat}, ${lon}`; 
   }
 };
 
@@ -53,19 +50,19 @@ const DeliveryPerson = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [location, setLocation] = useState(null); // { lat, lng }
-  const [driverLocation, setDriverLocation] = useState(null); // Store confirmed driver location
+  const [location, setLocation] = useState(null); 
+  const [driverLocation, setDriverLocation] = useState(null); 
   const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
   const [isAcceptingOrder, setIsAcceptingOrder] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null); // Track order for navigation
-  const [orderAddresses, setOrderAddresses] = useState({}); // Store addresses for each order
+  const [selectedOrder, setSelectedOrder] = useState(null); 
+  const [orderAddresses, setOrderAddresses] = useState({}); 
   const navigate = useNavigate();
 
   // Fetch orders
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:7003/driverRoutes/showtheorder', {
+        const response = await fetch('http://localhost:30703/driverRoutes/showtheorder', {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -78,20 +75,20 @@ const DeliveryPerson = () => {
         }
 
         const { data } = await response.json();
-        console.log('Raw Orders Data:', data); // Debug backend response
+        console.log('Raw Orders Data:', data); 
         setOrders(data || []);
 
-        // Fetch addresses for each order
+
         const addresses = {};
         for (let i = 0; i < (data || []).length; i++) {
           const order = data[i];
           const orderId = order.orderId;
 
-          // Restaurant address
+
           const restaurantLat = order.restaurant?.location?.latitude;
           const restaurantLon = order.restaurant?.location?.longitude;
           if (restaurantLat && restaurantLon) {
-            await delay(1000); // 1-second delay between requests
+            await delay(1000); 
             const restaurantAddress = await reverseGeocode(restaurantLat, restaurantLon);
             addresses[orderId] = {
               ...addresses[orderId],
@@ -99,11 +96,11 @@ const DeliveryPerson = () => {
             };
           }
 
-          // Delivery address
+
           const deliveryLat = order.deliveryLocation?.latitude;
           const deliveryLon = order.deliveryLocation?.longitude;
           if (deliveryLat && deliveryLon) {
-            await delay(1000); // 1-second delay between requests
+            await delay(1000); 
             const deliveryAddress = await reverseGeocode(deliveryLat, deliveryLon);
             addresses[orderId] = {
               ...addresses[orderId],
@@ -125,7 +122,6 @@ const DeliveryPerson = () => {
     }
   }, [user]);
 
-  // Fetch current location using Geolocation API
   const fetchCurrentLocation = () => {
     setError(null);
     if (!navigator.geolocation) {
@@ -168,7 +164,7 @@ const DeliveryPerson = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:7003/driverRoutes/update-location', {
+      const response = await fetch('http://localhost:30703/driverRoutes/update-location', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -186,12 +182,12 @@ const DeliveryPerson = () => {
         throw new Error(errorData.message || 'Failed to update location');
       }
 
-      // Update driverLocation with the confirmed location
+
       setDriverLocation({
         latitude: location.lat,
         longitude: location.lng,
       });
-      setLocation(null); // Clear location after successful update
+      setLocation(null); 
       alert('Location updated successfully!');
     } catch (err) {
       console.error('Error updating location:', err);
@@ -206,49 +202,49 @@ const DeliveryPerson = () => {
       setIsAcceptingOrder(true);
       setError(null);
 
-      // Validate restaurant coordinates
+
       if (!order.restaurant?.location?.latitude || !order.restaurant?.location?.longitude) {
         throw new Error('Restaurant location coordinates are missing');
       }
 
-      // Use raw coordinates without swapping to test backend convention
+
       const restaurantLat = parseFloat(order.restaurant.location.latitude);
       const restaurantLon = parseFloat(order.restaurant.location.longitude);
 
-      // Log raw coordinates for debugging
+
       console.log('Raw Restaurant Coordinates:', {
         latitude: order.restaurant.location.latitude,
         longitude: order.restaurant.location.longitude,
       });
 
-      // Validate restaurant coordinates
+
       if (!isValidCoordinate(restaurantLat, restaurantLon)) {
         throw new Error(`Invalid restaurant coordinates: lat=${restaurantLat}, lon=${restaurantLon}`);
       }
 
-      // Validate driver location
+
       if (!driverLocation?.latitude || !driverLocation?.longitude) {
         throw new Error('Driver location is not available. Please update your location.');
       }
 
-      // Use confirmed driver location
+
       const driverLat = parseFloat(driverLocation.latitude);
       const driverLon = parseFloat(driverLocation.longitude);
 
-      // Validate driver coordinates
+
       if (!isValidCoordinate(driverLat, driverLon)) {
         throw new Error(`Invalid driver coordinates: lat=${driverLat}, lon=${driverLon}`);
       }
 
-      // Debug coordinates before opening map
+
       console.log('Processed Coordinates for Map:', {
         driver: { lat: driverLat, lon: driverLon },
         restaurant: { lat: restaurantLat, lon: restaurantLon },
       });
 
-      // Update order status to 'driverAccepted'
+
       const updateResponse = await fetch(
-        `http://localhost:7003/driverRoutes/updateOrder/${order.orderId}`,
+        `http://localhost:30703/driverRoutes/updateOrder/${order.orderId}`,
         {
           method: 'PUT',
           headers: {
@@ -270,7 +266,7 @@ const DeliveryPerson = () => {
       const updatedOrderResponse = await updateResponse.json();
       const updatedOrder = updatedOrderResponse.order;
 
-      // Update local state
+
       setOrders((prevOrders) =>
         prevOrders.map((o) =>
           o.orderId === order.orderId
@@ -279,7 +275,7 @@ const DeliveryPerson = () => {
         )
       );
 
-      // Set selected order for navigation
+
       setSelectedOrder({ ...order, status: updatedOrder.orderStatus });
 
       // Open map in a new tab with driver and restaurant coordinates
@@ -291,7 +287,7 @@ const DeliveryPerson = () => {
         setError('Popup blocked. Please allow popups for this site and try again.');
       }
 
-      // Navigate to OrderDetails in the current tab
+
       navigate('/DOrderDetails', {
         state: {
           order: { ...order, status: updatedOrder.orderStatus },
@@ -362,7 +358,7 @@ const DeliveryPerson = () => {
           {orders.length > 0 ? (
             <div>
               {orders
-                .filter((order) => order.status !== ORDER_STATUS.DELIVERED) // Filter out Delivered orders
+                .filter((order) => order.status !== ORDER_STATUS.DELIVERED) 
                 .map((order) => (
                   <div key={order.orderId} className="order-card">
                     {/* Order Overview */}
@@ -458,7 +454,6 @@ const DeliveryPerson = () => {
                       </div>
                     )}
 
-                    {/* Action Buttons */}
                     <div className="flex">
                       {order.status === ORDER_STATUS.DRIVER_ASSIGNED && (
                         <button

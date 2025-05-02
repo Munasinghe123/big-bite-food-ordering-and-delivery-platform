@@ -9,7 +9,7 @@ function AllUsers() {
     const fetchUsers = async () => {
       try {
         const { data } = await axios.get(
-          "http://localhost:7001/api/users/getallusers",
+          "http://localhost:30101/api/users/getallusers",
           { withCredentials: true }
         );
         setUsers(data.allUsers);

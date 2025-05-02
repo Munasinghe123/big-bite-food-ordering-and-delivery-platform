@@ -6,13 +6,13 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../Sidebar/Sidebar';
 
 const Menulists = () => {
-  const url = 'http://localhost:5004';
+  const url = 'http://localhost:30504';
   const [list, setList] = useState([]);
   const [search, setSearch] = useState('');
   const [notFound, setNotFound] = useState('');
   const navigate = useNavigate();
 
-  // Fetch all menu items initially
+
   const fetchAllMenus = async () => {
     try {
       const response = await axios.get(`${url}/api/menu/list`);

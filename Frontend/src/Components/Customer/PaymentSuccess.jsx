@@ -20,7 +20,7 @@ function PaymentSuccess() {
 
       try {
         await axios.put(
-          `http://localhost:5000/orders/mark-paid/${orderId}`,
+          `http://localhost:30500/orders/mark-paid/${orderId}`,
           {}, 
           {
             withCredentials: true
@@ -30,9 +30,8 @@ function PaymentSuccess() {
         console.log('Payment status updated successfully!');
         toast.success('Payment successfully processed!');
 
-        // Step 2: Automatically assign a driver
         const assignDriverResponse = await axios.post(
-          'http://localhost:7003/driverRoutes/assign-driver-payment-success',
+          'http://localhost:30703/driverRoutes/assign-driver-payment-success',
           { 
             orderId,
             secretKey: import.meta.env.VITE_PAYMENT_SUCCESS_SECRET
@@ -85,7 +84,7 @@ function PaymentSuccess() {
       backgroundColor: '#f8f9fa'
     }}>
       <h1 style={{ color: '#28a745', fontSize: '2.5rem', marginBottom: '1rem' }}>
-        ✅ Payment Successful!
+        Payment Successful!
       </h1>
       <p style={{ fontSize: '1.2rem', marginBottom: '2rem' }}>
         Thank you for your payment. You will be redirected shortly...

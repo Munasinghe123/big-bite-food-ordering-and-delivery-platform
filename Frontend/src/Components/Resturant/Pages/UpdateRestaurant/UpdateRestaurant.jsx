@@ -9,7 +9,7 @@ import Sidebar from '../../Sidebar/Sidebar';
 const UpdateRestaurant = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const url = 'http://localhost:7001';
+    const url = 'http://localhost:30101';
 
     const [data, setData] = useState({
         restaurantName: '',
