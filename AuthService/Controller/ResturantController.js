@@ -216,7 +216,6 @@ const getAllRestaurants = async (req, res) => {
 
   const updateRestaurant = async (req, res) => {
     const { restaurantName, restaurantLocation, lat, lng, openStatus } = req.body;
-
     try {
         //const restaurant = await resturantModel.findById(req.params.id);
         const restaurant = await resturantModel.findOne({ admin: req.params.id });
